@@ -1,0 +1,1895 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AEGIS INTELLIGENCE AGENCY</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --bg-dark: #0a0e1a;
+            --bg-light: #f0f4f8;
+            --primary-dark: #7bed9f;
+            --primary-light: #2ecc71;
+            --secondary-dark: #c77dff;
+            --secondary-light: #9d4edd;
+            --text-dark: #e0e0e0;
+            --text-light: #1a1a1a;
+            --neon-green: #7bed9f;
+            --neon-purple: #c77dff;
+            --neon-red: #ff6b6b;
+            --neon-blue: #74c0fc;
+            --panel-dark: #151b2e;
+            --panel-light: #ffffff;
+            --border-dark: #2a3f5f;
+            --border-light: #cbd5e0;
+        }
+
+        body {
+            font-family: 'Courier New', monospace;
+            background: var(--bg-dark);
+            color: var(--text-dark);
+            overflow-x: hidden;
+            transition: background 0.3s, color 0.3s;
+        }
+
+        body.light-mode {
+            background: var(--bg-light);
+            color: var(--text-light);
+        }
+
+        body.light-mode .panel,
+        body.light-mode .modal-content,
+        body.light-mode .card,
+        body.light-mode .status-bar {
+            background: var(--panel-light);
+            border-color: var(--border-light);
+            color: var(--text-light);
+        }
+
+        body.light-mode .neon-text {
+            color: var(--primary-light);
+            text-shadow: 0 0 10px var(--primary-light);
+        }
+
+        .main-interface {
+            min-height: 100vh;
+            padding: 15px;
+            padding-bottom: 80px;
+        }
+
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+
+        .logo {
+            font-size: 20px;
+            font-weight: bold;
+            color: var(--neon-green);
+            text-shadow: 0 0 20px var(--neon-green);
+        }
+
+        @media (min-width: 768px) {
+            .logo {
+                font-size: 24px;
+            }
+            .main-interface {
+                padding: 20px;
+            }
+        }
+
+        .controls {
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+        }
+
+        .btn {
+            background: var(--panel-dark);
+            border: 2px solid var(--border-dark);
+            color: var(--text-dark);
+            padding: 8px 12px;
+            cursor: pointer;
+            font-family: 'Courier New', monospace;
+            font-size: 11px;
+            transition: all 0.3s;
+            text-transform: uppercase;
+            white-space: nowrap;
+        }
+
+        @media (min-width: 768px) {
+            .btn {
+                padding: 8px 16px;
+                font-size: 12px;
+            }
+        }
+
+        .btn:hover,
+        .btn:focus {
+            background: var(--neon-green);
+            color: var(--bg-dark);
+            box-shadow: 0 0 15px var(--neon-green);
+            outline: none;
+        }
+
+        .btn.active {
+            background: var(--neon-purple);
+            border-color: var(--neon-purple);
+            box-shadow: 0 0 15px var(--neon-purple);
+        }
+
+        .btn-danger {
+            border-color: var(--neon-red);
+        }
+
+        .btn-danger:hover {
+            background: var(--neon-red);
+            box-shadow: 0 0 15px var(--neon-red);
+        }
+
+        .grid {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+
+        @media (min-width: 640px) {
+            .grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+
+        @media (min-width: 1024px) {
+            .grid {
+                grid-template-columns: repeat(3, 1fr);
+                gap: 20px;
+            }
+        }
+
+        .panel {
+            background: var(--panel-dark);
+            border: 2px solid var(--border-dark);
+            padding: 15px;
+            position: relative;
+            transition: all 0.3s;
+        }
+
+        @media (min-width: 768px) {
+            .panel {
+                padding: 20px;
+            }
+        }
+
+        .panel:hover {
+            border-color: var(--neon-green);
+            box-shadow: 0 0 20px rgba(123, 237, 159, 0.3);
+        }
+
+        .panel h2 {
+            color: var(--neon-purple);
+            margin-bottom: 15px;
+            font-size: 16px;
+            text-shadow: 0 0 10px var(--neon-purple);
+        }
+
+        @media (min-width: 768px) {
+            .panel h2 {
+                font-size: 18px;
+            }
+        }
+
+        .clearance-badge {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            background: var(--neon-purple);
+            color: var(--bg-dark);
+            padding: 4px 8px;
+            font-size: 9px;
+            font-weight: bold;
+        }
+
+        .neon-text {
+            color: var(--neon-green);
+            text-shadow: 0 0 10px var(--neon-green);
+        }
+
+        .status-bar {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: var(--panel-dark);
+            border-top: 2px solid var(--border-dark);
+            padding: 8px 15px;
+            display: flex;
+            justify-content: space-between;
+            font-size: 10px;
+            z-index: 100;
+            flex-wrap: wrap;
+            gap: 8px;
+        }
+
+        @media (min-width: 768px) {
+            .status-bar {
+                padding: 10px 20px;
+                font-size: 11px;
+            }
+        }
+
+        /* MODAL SYSTEM */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(10, 14, 26, 0.95);
+            z-index: 10000;
+            overflow-y: auto;
+            padding: 20px;
+        }
+
+        .modal.active {
+            display: flex;
+            align-items: flex-start;
+            justify-content: center;
+            animation: fadeIn 0.3s;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        .modal-content {
+            background: var(--panel-dark);
+            border: 3px solid var(--neon-purple);
+            padding: 20px;
+            width: 100%;
+            max-width: 900px;
+            margin: 20px auto;
+            max-height: 90vh;
+            overflow-y: auto;
+            position: relative;
+            box-shadow: 0 0 50px var(--neon-purple);
+        }
+
+        @media (min-width: 768px) {
+            .modal-content {
+                padding: 30px;
+            }
+        }
+
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+
+        .modal-title {
+            color: var(--neon-purple);
+            font-size: 18px;
+            text-shadow: 0 0 15px var(--neon-purple);
+            flex: 1;
+        }
+
+        @media (min-width: 768px) {
+            .modal-title {
+                font-size: 22px;
+            }
+        }
+
+        .close-modal {
+            background: none;
+            border: none;
+            color: var(--neon-red);
+            font-size: 28px;
+            cursor: pointer;
+            line-height: 1;
+            padding: 0;
+            width: 30px;
+            height: 30px;
+        }
+
+        .close-modal:hover {
+            color: var(--neon-purple);
+        }
+
+        .modal-body {
+            margin-bottom: 20px;
+        }
+
+        .form-group {
+            margin-bottom: 15px;
+        }
+
+        .form-label {
+            display: block;
+            color: var(--neon-green);
+            margin-bottom: 5px;
+            font-size: 12px;
+        }
+
+        .form-input,
+        .form-select,
+        .form-textarea {
+            width: 100%;
+            background: rgba(42, 63, 95, 0.5);
+            border: 2px solid var(--border-dark);
+            color: var(--text-dark);
+            padding: 10px;
+            font-family: 'Courier New', monospace;
+            font-size: 13px;
+        }
+
+        body.light-mode .form-input,
+        body.light-mode .form-select,
+        body.light-mode .form-textarea {
+            background: white;
+            color: var(--text-light);
+        }
+
+        .form-input:focus,
+        .form-select:focus,
+        .form-textarea:focus {
+            outline: none;
+            border-color: var(--neon-green);
+            box-shadow: 0 0 10px rgba(123, 237, 159, 0.3);
+        }
+
+        .form-textarea {
+            min-height: 100px;
+            resize: vertical;
+        }
+
+        /* CARDS */
+        .card {
+            background: var(--panel-dark);
+            border: 2px solid var(--border-dark);
+            padding: 15px;
+            margin-bottom: 10px;
+            cursor: pointer;
+            transition: all 0.3s;
+            position: relative;
+        }
+
+        .card:hover {
+            border-color: var(--neon-green);
+            box-shadow: 0 0 15px rgba(123, 237, 159, 0.2);
+        }
+
+        .card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 10px;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+
+        .card-title {
+            font-weight: bold;
+            color: var(--neon-purple);
+            font-size: 14px;
+            flex: 1;
+            min-width: 150px;
+        }
+
+        .card-status {
+            padding: 4px 8px;
+            font-size: 10px;
+            border: 1px solid;
+        }
+
+        .status-active { 
+            color: var(--neon-green); 
+            border-color: var(--neon-green);
+            background: rgba(123, 237, 159, 0.1);
+        }
+        .status-mission { 
+            color: var(--neon-blue); 
+            border-color: var(--neon-blue);
+            background: rgba(116, 192, 252, 0.1);
+        }
+        .status-compromised { 
+            color: var(--neon-red); 
+            border-color: var(--neon-red);
+            background: rgba(255, 107, 107, 0.1);
+        }
+        .status-standby { 
+            color: var(--secondary-dark); 
+            border-color: var(--secondary-dark);
+            background: rgba(199, 125, 255, 0.1);
+        }
+
+        .card-body {
+            font-size: 12px;
+            line-height: 1.6;
+        }
+
+        .card-meta {
+            display: flex;
+            gap: 15px;
+            margin-top: 10px;
+            flex-wrap: wrap;
+            font-size: 11px;
+            opacity: 0.8;
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 10px;
+        }
+
+        @media (min-width: 640px) {
+            .stats-grid {
+                grid-template-columns: repeat(3, 1fr);
+            }
+        }
+
+        @media (min-width: 1024px) {
+            .stats-grid {
+                grid-template-columns: repeat(4, 1fr);
+            }
+        }
+
+        .stat-box {
+            background: rgba(123, 237, 159, 0.1);
+            border: 1px solid var(--neon-green);
+            padding: 12px;
+            text-align: center;
+        }
+
+        .stat-value {
+            font-size: 20px;
+            color: var(--neon-green);
+            font-weight: bold;
+        }
+
+        @media (min-width: 768px) {
+            .stat-value {
+                font-size: 24px;
+            }
+        }
+
+        .stat-label {
+            font-size: 9px;
+            opacity: 0.7;
+            margin-top: 5px;
+        }
+
+        @media (min-width: 768px) {
+            .stat-label {
+                font-size: 10px;
+            }
+        }
+
+        .tabs {
+            display: flex;
+            gap: 5px;
+            margin-bottom: 20px;
+            overflow-x: auto;
+            padding-bottom: 5px;
+        }
+
+        .tab {
+            background: var(--panel-dark);
+            border: 2px solid var(--border-dark);
+            color: var(--text-dark);
+            padding: 10px 15px;
+            cursor: pointer;
+            font-family: 'Courier New', monospace;
+            font-size: 11px;
+            transition: all 0.3s;
+            white-space: nowrap;
+            flex-shrink: 0;
+        }
+
+        .tab.active {
+            background: var(--neon-purple);
+            border-color: var(--neon-purple);
+            color: white;
+        }
+
+        .tab-content {
+            display: none;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        .list-container {
+            max-height: 500px;
+            overflow-y: auto;
+        }
+
+        .threat-level {
+            display: inline-block;
+            padding: 4px 8px;
+            font-size: 10px;
+            font-weight: bold;
+        }
+
+        .threat-critical {
+            background: var(--neon-red);
+            color: white;
+        }
+
+        .threat-high {
+            background: #ff922b;
+            color: white;
+        }
+
+        .threat-moderate {
+            background: #ffd43b;
+            color: var(--bg-dark);
+        }
+
+        .threat-low {
+            background: var(--neon-green);
+            color: var(--bg-dark);
+        }
+
+        .progress-bar {
+            background: rgba(42, 63, 95, 0.5);
+            height: 20px;
+            border: 1px solid var(--border-dark);
+            margin: 10px 0;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .progress-fill {
+            background: linear-gradient(90deg, var(--neon-green), var(--neon-purple));
+            height: 100%;
+            transition: width 0.3s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 10px;
+            color: white;
+        }
+
+        .glitch {
+            animation: glitch 3s infinite;
+        }
+
+        @keyframes glitch {
+            0%, 90%, 100% { transform: translate(0); }
+            92% { transform: translate(-2px, 2px); }
+            94% { transform: translate(2px, -2px); }
+            96% { transform: translate(-2px, -2px); }
+        }
+
+        .timeline {
+            border-left: 2px solid var(--neon-purple);
+            padding-left: 15px;
+            margin-left: 10px;
+        }
+
+        .timeline-item {
+            margin-bottom: 20px;
+            position: relative;
+        }
+
+        .timeline-item::before {
+            content: '';
+            position: absolute;
+            left: -20px;
+            top: 5px;
+            width: 10px;
+            height: 10px;
+            background: var(--neon-purple);
+            border-radius: 50%;
+        }
+
+        .timeline-time {
+            font-size: 10px;
+            color: var(--neon-green);
+            margin-bottom: 5px;
+        }
+
+        .timeline-content {
+            font-size: 12px;
+            line-height: 1.5;
+        }
+
+        .scroll-container {
+            overflow-x: auto;
+            -webkit-overflow-scrolling: touch;
+        }
+
+        .scroll-container::-webkit-scrollbar {
+            height: 8px;
+        }
+
+        .scroll-container::-webkit-scrollbar-track {
+            background: var(--panel-dark);
+        }
+
+        .scroll-container::-webkit-scrollbar-thumb {
+            background: var(--neon-purple);
+        }
+
+        .loading {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border: 3px solid var(--border-dark);
+            border-top-color: var(--neon-green);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        .notification {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: var(--panel-dark);
+            border: 2px solid var(--neon-green);
+            padding: 15px 20px;
+            max-width: 300px;
+            z-index: 10001;
+            box-shadow: 0 0 20px rgba(123, 237, 159, 0.5);
+            animation: slideIn 0.3s;
+        }
+
+        @keyframes slideIn {
+            from {
+                transform: translateX(400px);
+                opacity: 0;
+            }
+            to {
+                transform: translateX(0);
+                opacity: 1;
+            }
+        }
+
+        .notification.error {
+            border-color: var(--neon-red);
+            box-shadow: 0 0 20px rgba(255, 107, 107, 0.5);
+        }
+
+        .notification.warning {
+            border-color: #ffd43b;
+            box-shadow: 0 0 20px rgba(255, 212, 59, 0.5);
+        }
+
+        @media (max-width: 640px) {
+            .notification {
+                left: 15px;
+                right: 15px;
+                max-width: none;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="main-interface">
+        <div class="header">
+            <div class="logo glitch">AEGIS INTELLIGENCE</div>
+            <div class="controls">
+                <button class="btn active" id="btnDashboard">TABLEAU DE BORD</button>
+                <button class="btn" id="btnAgents">AGENTS</button>
+                <button class="btn" id="btnMissions">MISSIONS</button>
+                <button class="btn" id="btnIntel">RENSEIGNEMENT</button>
+                <button class="btn" id="btnComms">COMMS</button>
+                <button class="btn" id="themeToggle">MODE CLAIR</button>
+            </div>
+        </div>
+
+        <!-- DASHBOARD VIEW -->
+        <div id="viewDashboard" class="view-content">
+            <div class="grid">
+                <div class="panel">
+                    <h2>STATISTIQUES OPÉRATIONNELLES</h2>
+                    <div class="stats-grid">
+                        <div class="stat-box">
+                            <div class="stat-value" id="statAgents">0</div>
+                            <div class="stat-label">AGENTS</div>
+                        </div>
+                        <div class="stat-box">
+                            <div class="stat-value" id="statMissions">0</div>
+                            <div class="stat-label">MISSIONS</div>
+                        </div>
+                        <div class="stat-box">
+                            <div class="stat-value" id="statTargets">0</div>
+                            <div class="stat-label">CIBLES</div>
+                        </div>
+                        <div class="stat-box">
+                            <div class="stat-value" id="statThreats">0</div>
+                            <div class="stat-label">MENACES</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="panel">
+                    <h2>MISSIONS ACTIVES</h2>
+                    <div id="activeMissionsList" style="max-height: 300px; overflow-y: auto;">
+                        <p style="opacity: 0.5; font-size: 12px;">Aucune mission active...</p>
+                    </div>
+                </div>
+
+                <div class="panel">
+                    <h2>ALERTES DE SÉCURITÉ</h2>
+                    <div id="securityAlerts" class="timeline">
+                        <div class="timeline-item">
+                            <div class="timeline-time">Il y a 2h</div>
+                            <div class="timeline-content">Agent Gardien: Surveillance de routine</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="panel">
+                <h2>HIÉRARCHIE DE L'ORGANISATION</h2>
+                <div style="font-size: 12px; line-height: 2;">
+                    <p><span class="neon-text">NIVEAU 4:</span> <span style="background: var(--text-dark); color: var(--text-dark); padding: 2px 20px;">CRÉATEUR</span> <span style="opacity: 0.6;">(Protection Agent Gardien)</span></p>
+                    <p style="margin-left: 20px;"><span class="neon-text">└─ NIVEAU 3:</span> Le Collectif <span style="opacity: 0.6;">(Directives stratégiques)</span></p>
+                    <p style="margin-left: 40px;"><span class="neon-text">└─ NIVEAU 2:</span> L'Organisation <span style="opacity: 0.6;">(Opérations tactiques)</span></p>
+                    <p style="margin-left: 60px;"><span class="neon-text">└─ NIVEAU 1:</span> <span id="agentCount">0</span> Agents <span style="opacity: 0.6;">(Exécution terrain)</span></p>
+                </div>
+            </div>
+        </div>
+
+        <!-- AGENTS VIEW -->
+        <div id="viewAgents" class="view-content" style="display: none;">
+            <div style="margin-bottom: 20px;">
+                <button class="btn" id="btnAddAgent">+ NOUVEL AGENT</button>
+                <button class="btn" id="btnFilterAgents">FILTRES</button>
+            </div>
+
+            <div class="tabs">
+                <div class="tab active" data-tab="allAgents">TOUS</div>
+                <div class="tab" data-tab="activeAgents">ACTIFS</div>
+                <div class="tab" data-tab="missionAgents">EN MISSION</div>
+                <div class="tab" data-tab="standbyAgents">STANDBY</div>
+            </div>
+
+            <div class="tab-content active" id="allAgents">
+                <div class="list-container" id="agentsList"></div>
+            </div>
+            <div class="tab-content" id="activeAgents"></div>
+            <div class="tab-content" id="missionAgents"></div>
+            <div class="tab-content" id="standbyAgents"></div>
+        </div>
+
+        <!-- MISSIONS VIEW -->
+        <div id="viewMissions" class="view-content" style="display: none;">
+            <div style="margin-bottom: 20px;">
+                <button class="btn" id="btnAddMission">+ NOUVELLE MISSION</button>
+                <button class="btn" id="btnMissionArchive">ARCHIVES</button>
+            </div>
+
+            <div class="tabs">
+                <div class="tab active" data-tab="planningMissions">PLANIFICATION</div>
+                <div class="tab" data-tab="activeMissions">EN COURS</div>
+                <div class="tab" data-tab="completedMissions">TERMINÉES</div>
+            </div>
+
+            <div class="tab-content active" id="planningMissions">
+                <div class="list-container" id="missionsList"></div>
+            </div>
+            <div class="tab-content" id="activeMissions"></div>
+            <div class="tab-content" id="completedMissions"></div>
+        </div>
+
+        <!-- INTELLIGENCE VIEW -->
+        <div id="viewIntel" class="view-content" style="display: none;">
+            <div style="margin-bottom: 20px;">
+                <button class="btn" id="btnAddTarget">+ NOUVELLE CIBLE</button>
+                <button class="btn" id="btnThreatAnalysis">ANALYSE MENACES</button>
+            </div>
+
+            <div class="grid">
+                <div class="panel">
+                    <h2>CIBLES PRIORITAIRES</h2>
+                    <div class="list-container" id="targetsList"></div>
+                </div>
+
+                <div class="panel">
+                    <h2>ÉVALUATION MENACES</h2>
+                    <div id="threatAssessment">
+                        <div style="margin-bottom: 15px;">
+                            <div style="display: flex; justify-content: space-between; margin-bottom: 5px; font-size: 12px;">
+                                <span>CRITIQUE</span>
+                                <span id="threatCritical">0</span>
+                            </div>
+                            <div class="progress-bar">
+                                <div class="progress-fill" style="width: 0%" id="threatCriticalBar"></div>
+                            </div>
+                        </div>
+                        <div style="margin-bottom: 15px;">
+                            <div style="display: flex; justify-content: space-between; margin-bottom: 5px; font-size: 12px;">
+                                <span>ÉLEVÉ</span>
+                                <span id="threatHigh">0</span>
+                            </div>
+                            <div class="progress-bar">
+                                <div class="progress-fill" style="width: 0%; background: linear-gradient(90deg, #ff922b, #ffd43b);" id="threatHighBar"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="panel">
+                    <h2>ACTIVITÉ RÉCENTE</h2>
+                    <div class="timeline" id="intelTimeline"></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- COMMUNICATIONS VIEW -->
+        <div id="viewComms" class="view-content" style="display: none;">
+            <div style="margin-bottom: 20px;">
+                <button class="btn" id="btnNewMessage">+ NOUVEAU MESSAGE</button>
+                <button class="btn" id="btnEmergencyProtocol">PROTOCOLE D'URGENCE</button>
+            </div>
+
+            <div class="grid">
+                <div class="panel" style="grid-column: 1 / -1;">
+                    <h2>MESSAGES CHIFFRÉS</h2>
+                    <div class="list-container" id="messagesList"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="status-bar">
+        <span>AEGIS v3.0</span>
+        <span id="currentTime"></span>
+        <span>Agent Gardien: <span class="neon-text">ACTIF</span></span>
+        <span id="connectionStatus">Connexion: <span class="neon-text">SÉCURISÉE</span></span>
+    </div>
+
+    <!-- MODAL: ADD AGENT -->
+    <div class="modal" id="modalAddAgent">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 class="modal-title">NOUVEAU PROFIL AGENT</h3>
+                <button class="close-modal" onclick="closeModal('modalAddAgent')">×</button>
+            </div>
+            <div class="modal-body">
+                <form id="formAddAgent">
+                    <div class="form-group">
+                        <label class="form-label">Nom de code</label>
+                        <input type="text" class="form-input" id="agentCodename" placeholder="Ex: Shadow, Cipher, Ghost..." required>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Spécialité</label>
+                        <select class="form-select" id="agentSpecialty" required>
+                            <option value="">Sélectionner...</option>
+                            <option value="infiltration">Infiltration</option>
+                            <option value="cyber">Cybersécurité</option>
+                            <option value="humint">HUMINT (Renseignement humain)</option>
+                            <option value="sigint">SIGINT (Interception signaux)</option>
+                            <option value="combat">Combat rapproché</option>
+                            <option value="extraction">Extraction</option>
+                            <option value="demolition">Démolition</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Années d'expérience</label>
+                        <input type="number" class="form-input" id="agentExperience" min="0" max="30" value="5" required>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Fiabilité (0-100)</label>
+                        <input type="range" class="form-input" id="agentTrust" min="0" max="100" value="85">
+                        <div style="text-align: center; margin-top: 5px;"><span id="trustValue">85</span>%</div>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Notes / Dossier</label>
+                        <textarea class="form-textarea" id="agentNotes" placeholder="Informations classifiées sur l'agent..."></textarea>
+                    </div>
+                    <div style="display: flex; gap: 10px; flex-wrap: wrap;">
+                        <button type="submit" class="btn">CRÉER AGENT</button>
+                        <button type="button" class="btn" onclick="closeModal('modalAddAgent')">ANNULER</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- MODAL: VIEW AGENT -->
+    <div class="modal" id="modalViewAgent">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 class="modal-title" id="viewAgentTitle">PROFIL AGENT</h3>
+                <button class="close-modal" onclick="closeModal('modalViewAgent')">×</button>
+            </div>
+            <div class="modal-body" id="viewAgentBody"></div>
+        </div>
+    </div>
+
+    <!-- MODAL: ADD MISSION -->
+    <div class="modal" id="modalAddMission">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 class="modal-title">PLANIFICATION MISSION</h3>
+                <button class="close-modal" onclick="closeModal('modalAddMission')">×</button>
+            </div>
+            <div class="modal-body">
+                <form id="formAddMission">
+                    <div class="form-group">
+                        <label class="form-label">Nom de code mission</label>
+                        <input type="text" class="form-input" id="missionCodename" placeholder="Ex: Opération Tempête..." required>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Type de mission</label>
+                        <select class="form-select" id="missionType" required>
+                            <option value="">Sélectionner...</option>
+                            <option value="infiltration">Infiltration</option>
+                            <option value="cyber">Cyberattaque</option>
+                            <option value="humint">Collecte HUMINT</option>
+                            <option value="extraction">Extraction</option>
+                            <option value="surveillance">Surveillance</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Agent assigné</label>
+                        <select class="form-select" id="missionAgent" required>
+                            <option value="">Sélectionner...</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Localisation</label>
+                        <input type="text" class="form-input" id="missionLocation" placeholder="Ex: Berlin, Moscou..." required>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Priorité</label>
+                        <select class="form-select" id="missionPriority" required>
+                            <option value="low">Faible</option>
+                            <option value="moderate" selected>Modérée</option>
+                            <option value="high">Élevée</option>
+                            <option value="critical">Critique</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Objectifs</label>
+                        <textarea class="form-textarea" id="missionObjectives" required></textarea>
+                    </div>
+                    <div style="display: flex; gap: 10px; flex-wrap: wrap;">
+                        <button type="submit" class="btn">LANCER MISSION</button>
+                        <button type="button" class="btn" onclick="closeModal('modalAddMission')">ANNULER</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- MODAL: ADD TARGET -->
+    <div class="modal" id="modalAddTarget">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 class="modal-title">NOUVELLE CIBLE</h3>
+                <button class="close-modal" onclick="closeModal('modalAddTarget')">×</button>
+            </div>
+            <div class="modal-body">
+                <form id="formAddTarget">
+                    <div class="form-group">
+                        <label class="form-label">Nom / Alias</label>
+                        <input type="text" class="form-input" id="targetName" required>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Type</label>
+                        <select class="form-select" id="targetType" required>
+                            <option value="">Sélectionner...</option>
+                            <option value="individual">Individu</option>
+                            <option value="organization">Organisation</option>
+                            <option value="state">État</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Niveau de menace</label>
+                        <select class="form-select" id="targetThreat" required>
+                            <option value="low">Faible</option>
+                            <option value="moderate">Modéré</option>
+                            <option value="high">Élevé</option>
+                            <option value="critical">Critique</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Localisation</label>
+                        <input type="text" class="form-input" id="targetLocation">
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Intelligence</label>
+                        <textarea class="form-textarea" id="targetIntel" required></textarea>
+                    </div>
+                    <div style="display: flex; gap: 10px; flex-wrap: wrap;">
+                        <button type="submit" class="btn">AJOUTER CIBLE</button>
+                        <button type="button" class="btn" onclick="closeModal('modalAddTarget')">ANNULER</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- MODAL: NEW MESSAGE -->
+    <div class="modal" id="modalNewMessage">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 class="modal-title">MESSAGE CHIFFRÉ</h3>
+                <button class="close-modal" onclick="closeModal('modalNewMessage')">×</button>
+            </div>
+            <div class="modal-body">
+                <form id="formNewMessage">
+                    <div class="form-group">
+                        <label class="form-label">Destinataire</label>
+                        <select class="form-select" id="messageRecipient" required>
+                            <option value="">Sélectionner...</option>
+                            <option value="collectif">Le Collectif</option>
+                            <option value="organisation">L'Organisation</option>
+                            <option value="guardian">Agent Gardien</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Chiffrement</label>
+                        <select class="form-select" id="messageEncryption" required>
+                            <option value="standard">Standard (AES-256)</option>
+                            <option value="high">Élevé (AES-512)</option>
+                            <option value="quantum">Quantum</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Message</label>
+                        <textarea class="form-textarea" id="messageContent" required></textarea>
+                    </div>
+                    <div style="display: flex; gap: 10px; flex-wrap: wrap;">
+                        <button type="submit" class="btn">ENVOYER</button>
+                        <button type="button" class="btn" onclick="closeModal('modalNewMessage')">ANNULER</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // ========== DATA STORAGE ==========
+        const AppData = {
+            agents: [],
+            missions: [],
+            targets: [],
+            messages: [],
+            
+            save: async function() {
+                try {
+                    const data = {
+                        agents: this.agents,
+                        missions: this.missions,
+                        targets: this.targets,
+                        messages: this.messages,
+                        timestamp: new Date().toISOString()
+                    };
+                    await window.storage.set('aegis_data', JSON.stringify(data));
+                } catch (e) {
+                    console.log('Storage not available');
+                }
+            },
+            
+            load: async function() {
+                try {
+                    const result = await window.storage.get('aegis_data');
+                    if (result && result.value) {
+                        const data = JSON.parse(result.value);
+                        this.agents = data.agents || [];
+                        this.missions = data.missions || [];
+                        this.targets = data.targets || [];
+                        this.messages = data.messages || [];
+                        return true;
+                    }
+                } catch (e) {}
+                return false;
+            },
+
+            initSampleData: function() {
+                this.agents = [
+                    {id: 1, codename: 'Shadow', specialty: 'infiltration', experience: 15, trust: 95, status: 'active', missions: 47, successRate: 94},
+                    {id: 2, codename: 'Cipher', specialty: 'cyber', experience: 8, trust: 88, status: 'mission', missions: 23, successRate: 96},
+                    {id: 3, codename: 'Ghost', specialty: 'humint', experience: 12, trust: 92, status: 'standby', missions: 34, successRate: 91}
+                ];
+                this.missions = [
+                    {id: 1, codename: 'Opération Tempête', type: 'infiltration', agentId: 1, location: 'Berlin', priority: 'high', status: 'planning', progress: 35},
+                    {id: 2, codename: 'Protocole Fenrir', type: 'cyber', agentId: 2, location: 'Remote', priority: 'critical', status: 'active', progress: 67}
+                ];
+                this.targets = [
+                    {id: 1, name: 'Viktor Sokolov', type: 'individual', threat: 'critical', location: 'Moscou'},
+                    {id: 2, name: 'Organisation Phoenix', type: 'organization', threat: 'high', location: 'Multiple'}
+                ];
+                this.messages = [
+                    {id: 1, from: 'Le Collectif', to: 'Organisation', content: 'Mission Korben approuvée.', timestamp: new Date().toISOString()}
+                ];
+            }
+        };
+
+        // UI FUNCTIONS
+        function showNotification(msg, type='success') {
+            const n = document.createElement('div');
+            n.className = `notification ${type}`;
+            n.innerHTML = `<div style="font-weight: bold; margin-bottom: 5px;">${type === 'error' ? '⚠ ERREUR' : '✓ SUCCÈS'}</div><div style="font-size: 12px;">${msg}</div>`;
+            document.body.appendChild(n);
+            setTimeout(() => n.remove(), 3000);
+        }
+
+        function openModal(id) {
+            document.getElementById(id).classList.add('active');
+            if (id === 'modalAddMission') {
+                updateAgentSelect();
+            }
+        }
+
+        function closeModal(id) {
+            document.getElementById(id).classList.remove('active');
+        }
+
+        function updateStats() {
+            document.getElementById('statAgents').textContent = AppData.agents.length;
+            document.getElementById('statMissions').textContent = AppData.missions.length;
+            document.getElementById('statTargets').textContent = AppData.targets.length;
+            document.getElementById('agentCount').textContent = AppData.agents.length;
+            
+            const threats = AppData.targets.filter(t => t.threat === 'critical' || t.threat === 'high');
+            document.getElementById('statThreats').textContent = threats.length;
+            
+            const critical = AppData.targets.filter(t => t.threat === 'critical').length;
+            const high = AppData.targets.filter(t => t.threat === 'high').length;
+            const total = AppData.targets.length || 1;
+            
+            document.getElementById('threatCritical').textContent = critical;
+            document.getElementById('threatHigh').textContent = high;
+            document.getElementById('threatCriticalBar').style.width = ((critical / total) * 100) + '%';
+            document.getElementById('threatHighBar').style.width = ((high / total) * 100) + '%';
+        }
+
+        function getSpecialtyLabel(specialty) {
+            const labels = {
+                'infiltration': 'Infiltration',
+                'cyber': 'Cybersécurité',
+                'humint': 'HUMINT',
+                'sigint': 'SIGINT',
+                'combat': 'Combat',
+                'extraction': 'Extraction',
+                'demolition': 'Démolition'
+            };
+            return labels[specialty] || specialty;
+        }
+
+        function getStatusLabel(status) {
+            const labels = {
+                'active': 'ACTIF',
+                'mission': 'EN MISSION',
+                'standby': 'STANDBY',
+                'compromised': 'COMPROMIS'
+            };
+            return labels[status] || status.toUpperCase();
+        }
+
+        function getMissionTypeLabel(type) {
+            const labels = {
+                'infiltration': 'Infiltration',
+                'cyber': 'Cyberattaque',
+                'humint': 'HUMINT',
+                'extraction': 'Extraction',
+                'surveillance': 'Surveillance',
+                'elimination': 'Élimination',
+                'sabotage': 'Sabotage'
+            };
+            return labels[type] || type;
+        }
+
+        function renderAgentsList() {
+            const c = document.getElementById('agentsList');
+            c.innerHTML = '';
+            
+            if (AppData.agents.length === 0) {
+                c.innerHTML = '<p style="opacity: 0.5; font-size: 12px; padding: 20px;">Aucun agent enregistré...</p>';
+                return;
+            }
+            
+            AppData.agents.forEach(a => {
+                const div = document.createElement('div');
+                div.className = 'card';
+                div.onclick = () => viewAgent(a.id);
+                div.innerHTML = `
+                    <div class="card-header">
+                        <div class="card-title">${a.codename}</div>
+                        <div class="card-status status-${a.status}">${getStatusLabel(a.status)}</div>
+                    </div>
+                    <div class="card-body">
+                        <div><span class="neon-text">Spécialité:</span> ${getSpecialtyLabel(a.specialty)}</div>
+                        <div><span class="neon-text">Expérience:</span> ${a.experience} ans</div>
+                        <div><span class="neon-text">Fiabilité:</span> ${a.trust}%</div>
+                    </div>
+                    <div class="card-meta">
+                        <span>📊 ${a.missions || 0} missions</span>
+                        <span>✓ ${a.successRate || 0}% réussite</span>
+                    </div>
+                `;
+                c.appendChild(div);
+            });
+        }
+
+        function viewAgent(agentId) {
+            const agent = AppData.agents.find(a => a.id === agentId);
+            if (!agent) return;
+
+            document.getElementById('viewAgentTitle').textContent = `AGENT: ${agent.codename}`;
+            document.getElementById('viewAgentBody').innerHTML = `
+                <div style="margin-bottom: 20px;">
+                    <div class="stats-grid">
+                        <div class="stat-box">
+                            <div class="stat-value">${agent.experience}</div>
+                            <div class="stat-label">ANNÉES</div>
+                        </div>
+                        <div class="stat-box">
+                            <div class="stat-value">${agent.missions || 0}</div>
+                            <div class="stat-label">MISSIONS</div>
+                        </div>
+                        <div class="stat-box">
+                            <div class="stat-value">${agent.successRate || 0}%</div>
+                            <div class="stat-label">SUCCÈS</div>
+                        </div>
+                        <div class="stat-box">
+                            <div class="stat-value">${agent.trust}%</div>
+                            <div class="stat-label">FIABILITÉ</div>
+                        </div>
+                    </div>
+                </div>
+                <div style="margin-bottom: 15px;">
+                    <div style="font-weight: bold; color: var(--neon-purple); margin-bottom: 5px;">STATUT</div>
+                    <div class="card-status status-${agent.status}">${getStatusLabel(agent.status)}</div>
+                </div>
+                <div style="margin-bottom: 15px;">
+                    <div style="font-weight: bold; color: var(--neon-purple); margin-bottom: 5px;">SPÉCIALITÉ</div>
+                    <div>${getSpecialtyLabel(agent.specialty)}</div>
+                </div>
+                <div style="margin-bottom: 15px;">
+                    <div style="font-weight: bold; color: var(--neon-purple); margin-bottom: 5px;">DOSSIER</div>
+                    <div style="background: rgba(42, 63, 95, 0.3); padding: 10px; font-size: 12px;">
+                        ${agent.notes || 'Aucune note disponible.'}
+                    </div>
+                </div>
+                <div style="display: flex; gap: 10px; margin-top: 20px; flex-wrap: wrap;">
+                    <button class="btn" onclick="editAgent(${agent.id})">MODIFIER</button>
+                    <button class="btn btn-danger" onclick="deleteAgent(${agent.id})">SUPPRIMER</button>
+                    <button class="btn" onclick="closeModal('modalViewAgent')">FERMER</button>
+                </div>
+            `;
+            openModal('modalViewAgent');
+        }
+
+        function deleteAgent(agentId) {
+            if (confirm('Confirmer la suppression de cet agent ?')) {
+                AppData.agents = AppData.agents.filter(a => a.id !== agentId);
+                AppData.save();
+                closeModal('modalViewAgent');
+                renderAgentsList();
+                updateStats();
+                showNotification('Agent supprimé');
+            }
+        }
+
+        function renderMissionsList() {
+            const c = document.getElementById('missionsList');
+            c.innerHTML = '';
+            
+            if (AppData.missions.length === 0) {
+                c.innerHTML = '<p style="opacity: 0.5; font-size: 12px; padding: 20px;">Aucune mission planifiée...</p>';
+                return;
+            }
+            
+            AppData.missions.forEach(m => {
+                const agent = AppData.agents.find(a => a.id === m.agentId);
+                const div = document.createElement('div');
+                div.className = 'card';
+                div.innerHTML = `
+                    <div class="card-header">
+                        <div class="card-title">${m.codename}</div>
+                        <div class="card-status status-${m.status}">${m.status.toUpperCase()}</div>
+                    </div>
+                    <div class="card-body">
+                        <div><span class="neon-text">Type:</span> ${getMissionTypeLabel(m.type)}</div>
+                        <div><span class="neon-text">Agent:</span> ${agent ? agent.codename : 'Non assigné'}</div>
+                        <div><span class="neon-text">Localisation:</span> ${m.location}</div>
+                        <div class="progress-bar" style="margin-top: 10px;">
+                            <div class="progress-fill" style="width:${m.progress}%">${m.progress}%</div>
+                        </div>
+                    </div>
+                    <div class="card-meta">
+                        <span>📍 ${m.location}</span>
+                        <span class="threat-${m.priority}">${m.priority.toUpperCase()}</span>
+                    </div>
+                `;
+                c.appendChild(div);
+            });
+        }
+
+        function renderTargetsList() {
+            const c = document.getElementById('targetsList');
+            c.innerHTML = '';
+            
+            if (AppData.targets.length === 0) {
+                c.innerHTML = '<p style="opacity: 0.5; font-size: 12px;">Aucune cible...</p>';
+                return;
+            }
+            
+            AppData.targets.forEach(t => {
+                const div = document.createElement('div');
+                div.className = 'card';
+                div.innerHTML = `
+                    <div class="card-header">
+                        <div class="card-title">${t.name}</div>
+                        <div class="threat-level threat-${t.threat}">${t.threat.toUpperCase()}</div>
+                    </div>
+                    <div class="card-body">
+                        <div><span class="neon-text">Type:</span> ${t.type}</div>
+                        <div><span class="neon-text">Localisation:</span> ${t.location || 'Inconnue'}</div>
+                    </div>
+                `;
+                c.appendChild(div);
+            });
+        }
+
+        function renderMessagesList() {
+            const c = document.getElementById('messagesList');
+            c.innerHTML = '';
+            
+            if (AppData.messages.length === 0) {
+                c.innerHTML = '<p style="opacity: 0.5; font-size: 12px; padding: 20px;">Aucun message...</p>';
+                return;
+            }
+            
+            AppData.messages.forEach(m => {
+                const div = document.createElement('div');
+                div.className = 'card';
+                div.innerHTML = `
+                    <div class="card-header">
+                        <div class="card-title">De: ${m.from}</div>
+                        <div style="font-size: 10px; opacity: 0.7;">${new Date(m.timestamp).toLocaleString('fr-FR')}</div>
+                    </div>
+                    <div class="card-body">
+                        <div><span class="neon-text">À:</span> ${m.to}</div>
+                        <div><span class="neon-text">Chiffrement:</span> ${m.encryption}</div>
+                        <div style="margin-top: 10px; padding: 10px; background: rgba(42, 63, 95, 0.3); font-size: 12px;">
+                            ${m.content}
+                        </div>
+                    </div>
+                `;
+                c.appendChild(div);
+            });
+        }
+
+        function renderActiveMissions() {
+            const c = document.getElementById('activeMissionsList');
+            const active = AppData.missions.filter(m => m.status === 'active' || m.status === 'planning');
+            
+            if (active.length === 0) {
+                c.innerHTML = '<p style="opacity: 0.5; font-size: 12px;">Aucune mission active...</p>';
+                return;
+            }
+            
+            c.innerHTML = '';
+            active.forEach(m => {
+                const agent = AppData.agents.find(a => a.id === m.agentId);
+                const div = document.createElement('div');
+                div.style.marginBottom = '10px';
+                div.style.padding = '10px';
+                div.style.background = 'rgba(42, 63, 95, 0.3)';
+                div.style.fontSize = '12px';
+                div.innerHTML = `
+                    <div style="font-weight: bold; color: var(--neon-purple);">${m.codename}</div>
+                    <div>Agent: ${agent ? agent.codename : 'N/A'}</div>
+                    <div class="progress-bar" style="margin-top: 5px;">
+                        <div class="progress-fill" style="width:${m.progress}%">${m.progress}%</div>
+                    </div>
+                `;
+                c.appendChild(div);
+            });
+        }
+
+        function updateAgentSelect() {
+            const select = document.getElementById('missionAgent');
+            select.innerHTML = '<option value="">Sélectionner un agent...</option>';
+            AppData.agents.forEach(a => {
+                const option = document.createElement('option');
+                option.value = a.id;
+                option.textContent = `${a.codename} (${getSpecialtyLabel(a.specialty)})`;
+                select.appendChild(option);
+            });
+        }
+
+        // INIT
+        async function init() {
+            const loaded = await AppData.load();
+            if (!loaded) AppData.initSampleData();
+            updateStats();
+            renderAgentsList();
+            renderMissionsList();
+            renderTargetsList();
+            renderMessagesList();
+            renderActiveMissions();
+        }
+
+        // FORM HANDLERS
+        document.getElementById('formAddAgent').onsubmit = function(e) {
+            e.preventDefault();
+            const newAgent = {
+                id: Date.now(),
+                codename: document.getElementById('agentCodename').value,
+                specialty: document.getElementById('agentSpecialty').value,
+                experience: parseInt(document.getElementById('agentExperience').value),
+                trust: parseInt(document.getElementById('agentTrust').value),
+                status: 'active',
+                missions: 0,
+                successRate: 100,
+                notes: document.getElementById('agentNotes').value
+            };
+            AppData.agents.push(newAgent);
+            AppData.save();
+            closeModal('modalAddAgent');
+            this.reset();
+            renderAgentsList();
+            updateStats();
+            showNotification('Agent créé avec succès');
+        };
+
+        document.getElementById('formAddMission').onsubmit = function(e) {
+            e.preventDefault();
+            const newMission = {
+                id: Date.now(),
+                codename: document.getElementById('missionCodename').value,
+                type: document.getElementById('missionType').value,
+                agentId: parseInt(document.getElementById('missionAgent').value),
+                location: document.getElementById('missionLocation').value,
+                priority: document.getElementById('missionPriority').value,
+                status: 'planning',
+                progress: 0,
+                objectives: document.getElementById('missionObjectives').value,
+                startDate: new Date().toISOString()
+            };
+            AppData.missions.push(newMission);
+            
+            const agent = AppData.agents.find(a => a.id === newMission.agentId);
+            if (agent) {
+                agent.status = 'mission';
+            }
+            
+            AppData.save();
+            closeModal('modalAddMission');
+            this.reset();
+            renderMissionsList();
+            renderActiveMissions();
+            updateStats();
+            showNotification('Mission créée avec succès');
+        };
+
+        document.getElementById('formAddTarget').onsubmit = function(e) {
+            e.preventDefault();
+            const newTarget = {
+                id: Date.now(),
+                name: document.getElementById('targetName').value,
+                type: document.getElementById('targetType').value,
+                threat: document.getElementById('targetThreat').value,
+                location: document.getElementById('targetLocation').value,
+                intel: document.getElementById('targetIntel').value,
+                lastUpdate: new Date().toISOString()
+            };
+            AppData.targets.push(newTarget);
+            AppData.save();
+            closeModal('modalAddTarget');
+            this.reset();
+            renderTargetsList();
+            updateStats();
+            showNotification('Cible ajoutée avec succès');
+        };
+
+        document.getElementById('formNewMessage').onsubmit = function(e) {
+            e.preventDefault();
+            const newMessage = {
+                id: Date.now(),
+                from: 'Opérateur',
+                to: document.getElementById('messageRecipient').value,
+                encryption: document.getElementById('messageEncryption').value,
+                content: document.getElementById('messageContent').value,
+                timestamp: new Date().toISOString(),
+                status: 'sent'
+            };
+            AppData.messages.push(newMessage);
+            AppData.save();
+            closeModal('modalNewMessage');
+            this.reset();
+            renderMessagesList();
+            showNotification('Message envoyé (chiffré)');
+        };
+
+        // Trust slider update
+        document.getElementById('agentTrust').oninput = function() {
+            document.getElementById('trustValue').textContent = this.value;
+        };
+
+        // TABS SYSTEM
+        document.querySelectorAll('.tab').forEach(tab => {
+            tab.onclick = function() {
+                const parent = this.parentElement;
+                const tabName = this.dataset.tab;
+                
+                parent.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+                this.classList.add('active');
+                
+                const container = parent.nextElementSibling;
+                let current = container;
+                while (current && !current.classList.contains('tab-content')) {
+                    current = current.nextElementSibling;
+                }
+                
+                while (current && current.classList.contains('tab-content')) {
+                    current.style.display = 'none';
+                    current = current.nextElementSibling;
+                }
+                
+                document.getElementById(tabName).style.display = 'block';
+                
+                // Filter and render based on tab
+                if (tabName.includes('Agents')) {
+                    filterAgentsByTab(tabName);
+                } else if (tabName.includes('Missions')) {
+                    filterMissionsByTab(tabName);
+                }
+            };
+        });
+
+        function filterAgentsByTab(tabName) {
+            const container = document.getElementById(tabName);
+            container.innerHTML = '';
+            
+            let filtered = AppData.agents;
+            if (tabName === 'activeAgents') {
+                filtered = AppData.agents.filter(a => a.status === 'active');
+            } else if (tabName === 'missionAgents') {
+                filtered = AppData.agents.filter(a => a.status === 'mission');
+            } else if (tabName === 'standbyAgents') {
+                filtered = AppData.agents.filter(a => a.status === 'standby');
+            }
+            
+            if (filtered.length === 0) {
+                container.innerHTML = '<p style="opacity: 0.5; font-size: 12px; padding: 20px;">Aucun agent dans cette catégorie...</p>';
+                return;
+            }
+            
+            filtered.forEach(a => {
+                const div = document.createElement('div');
+                div.className = 'card';
+                div.onclick = () => viewAgent(a.id);
+                div.innerHTML = `
+                    <div class="card-header">
+                        <div class="card-title">${a.codename}</div>
+                        <div class="card-status status-${a.status}">${getStatusLabel(a.status)}</div>
+                    </div>
+                    <div class="card-body">
+                        <div><span class="neon-text">Spécialité:</span> ${getSpecialtyLabel(a.specialty)}</div>
+                        <div><span class="neon-text">Expérience:</span> ${a.experience} ans</div>
+                        <div><span class="neon-text">Fiabilité:</span> ${a.trust}%</div>
+                    </div>
+                    <div class="card-meta">
+                        <span>📊 ${a.missions || 0} missions</span>
+                        <span>✓ ${a.successRate || 0}% réussite</span>
+                    </div>
+                `;
+                container.appendChild(div);
+            });
+        }
+
+        function filterMissionsByTab(tabName) {
+            const container = document.getElementById(tabName);
+            container.innerHTML = '';
+            
+            let filtered = AppData.missions;
+            if (tabName === 'planningMissions') {
+                filtered = AppData.missions.filter(m => m.status === 'planning');
+            } else if (tabName === 'activeMissions') {
+                filtered = AppData.missions.filter(m => m.status === 'active');
+            } else if (tabName === 'completedMissions') {
+                filtered = AppData.missions.filter(m => m.status === 'completed');
+            }
+            
+            if (filtered.length === 0) {
+                container.innerHTML = '<p style="opacity: 0.5; font-size: 12px; padding: 20px;">Aucune mission dans cette catégorie...</p>';
+                return;
+            }
+            
+            filtered.forEach(m => {
+                const agent = AppData.agents.find(a => a.id === m.agentId);
+                const div = document.createElement('div');
+                div.className = 'card';
+                div.innerHTML = `
+                    <div class="card-header">
+                        <div class="card-title">${m.codename}</div>
+                        <div class="card-status status-${m.status}">${m.status.toUpperCase()}</div>
+                    </div>
+                    <div class="card-body">
+                        <div><span class="neon-text">Type:</span> ${getMissionTypeLabel(m.type)}</div>
+                        <div><span class="neon-text">Agent:</span> ${agent ? agent.codename : 'Non assigné'}</div>
+                        <div><span class="neon-text">Localisation:</span> ${m.location}</div>
+                        <div class="progress-bar" style="margin-top: 10px;">
+                            <div class="progress-fill" style="width:${m.progress}%">${m.progress}%</div>
+                        </div>
+                    </div>
+                    <div class="card-meta">
+                        <span>📍 ${m.location}</span>
+                        <span class="threat-${m.priority}">${m.priority.toUpperCase()}</span>
+                    </div>
+                `;
+                container.appendChild(div);
+            });
+        }
+
+        // INTEL TIMELINE
+        function updateIntelTimeline() {
+            const timeline = document.getElementById('intelTimeline');
+            timeline.innerHTML = '';
+            
+            const events = [
+                {time: '2h', content: 'Agent Gardien: Surveillance de routine'},
+                {time: '5h', content: 'Nouvelle cible ajoutée: Organisation Phoenix'},
+                {time: '12h', content: 'Mission Tempête: Planning phase complétée'},
+                {time: '1j', content: 'Agent Shadow: Rapport d\'infiltration reçu'},
+                {time: '2j', content: 'Alerte menace critique: Viktor Sokolov'}
+            ];
+            
+            events.forEach(e => {
+                const item = document.createElement('div');
+                item.className = 'timeline-item';
+                item.innerHTML = `
+                    <div class="timeline-time">Il y a ${e.time}</div>
+                    <div class="timeline-content">${e.content}</div>
+                `;
+                timeline.appendChild(item);
+            });
+        }
+
+        // AUTO-SAVE
+        setInterval(() => {
+            AppData.save();
+        }, 30000);
+
+        // EMERGENCY PROTOCOL
+        document.getElementById('btnEmergencyProtocol').onclick = function() {
+            if (confirm('⚠ ACTIVER PROTOCOLE D\'URGENCE?\n\nCeci déclenchera une alerte de sécurité maximale.')) {
+                const emergencyMsg = {
+                    id: Date.now(),
+                    from: 'SYSTÈME',
+                    to: 'TOUS LES AGENTS',
+                    encryption: 'quantum',
+                    content: '🚨 PROTOCOLE D\'URGENCE ACTIVÉ - EXFILTRATION IMMÉDIATE - CODE ROUGE',
+                    timestamp: new Date().toISOString(),
+                    status: 'urgent'
+                };
+                AppData.messages.unshift(emergencyMsg);
+                AppData.save();
+                renderMessagesList();
+                showNotification('PROTOCOLE D\'URGENCE ACTIVÉ', 'warning');
+                
+                document.getElementById('connectionStatus').innerHTML = 'Statut: <span style="color: var(--neon-red);">CODE ROUGE</span>';
+                setTimeout(() => {
+                    document.getElementById('connectionStatus').innerHTML = 'Connexion: <span class="neon-text">SÉCURISÉE</span>';
+                }, 10000);
+            }
+        };
+
+        // SIMULATION: Random mission progress
+        setInterval(() => {
+            AppData.missions.forEach(m => {
+                if (m.status === 'active' && m.progress < 100) {
+                    m.progress += Math.floor(Math.random() * 5);
+                    if (m.progress >= 100) {
+                        m.progress = 100;
+                        m.status = 'completed';
+                        const agent = AppData.agents.find(a => a.id === m.agentId);
+                        if (agent) {
+                            agent.status = 'active';
+                            agent.missions = (agent.missions || 0) + 1;
+                        }
+                        showNotification(`Mission ${m.codename} terminée!`);
+                    }
+                }
+            });
+            renderActiveMissions();
+            renderMissionsList();
+        }, 15000);
+
+        // KONAMI CODE & EASTER EGGS
+        let konamiCode = [];
+        const konamiSequence = ['ArrowUp', 'ArrowUp', 'ArrowDown', 'ArrowDown', 'ArrowLeft', 'ArrowRight', 'ArrowLeft', 'ArrowRight', 'b', 'a'];
+        
+        document.addEventListener('keydown', function(e) {
+            konamiCode.push(e.key);
+            if (konamiCode.length > 10) konamiCode.shift();
+            
+            if (konamiCode.join(',') === konamiSequence.join(',')) {
+                showNotification('🥚 CODE KONAMI DÉTECTÉ - Agent Gardien approuve votre détermination');
+                
+                // Unlock special agent
+                const specialAgent = {
+                    id: Date.now(),
+                    codename: 'Le Créateur',
+                    specialty: 'omniscient',
+                    experience: 99,
+                    trust: 100,
+                    status: 'active',
+                    missions: 999,
+                    successRate: 100,
+                    notes: '⚠ NIVEAU 4 - IDENTITÉ PROTÉGÉE PAR AGENT GARDIEN'
+                };
+                
+                const exists = AppData.agents.find(a => a.codename === 'Le Créateur');
+                if (!exists) {
+                    AppData.agents.push(specialAgent);
+                    AppData.save();
+                    renderAgentsList();
+                    updateStats();
+                }
+                
+                konamiCode = [];
+            }
+        });
+
+        // GUARDIAN INTERVENTION
+        let guardianInterventions = 0;
+        function triggerGuardianIntervention() {
+            guardianInterventions++;
+            const interventionMsg = {
+                id: Date.now(),
+                from: 'Agent Gardien',
+                to: 'Organisation',
+                encryption: 'quantum',
+                content: `⚠ Intervention #${guardianInterventions}: Tentative d'accès Niveau 4 bloquée. Surveillance renforcée.`,
+                timestamp: new Date().toISOString(),
+                status: 'read'
+            };
+            AppData.messages.unshift(interventionMsg);
+            AppData.save();
+            renderMessagesList();
+        }
+
+        // Check for guardian trigger on agent view
+        window.viewAgent = function(agentId) {
+            const agent = AppData.agents.find(a => a.id === agentId);
+            if (!agent) return;
+            
+            // Trigger guardian if trying to view "Le Créateur"
+            if (agent.codename === 'Le Créateur') {
+                triggerGuardianIntervention();
+                showNotification('⚠ Agent Gardien: Accès Niveau 4 refusé', 'error');
+                return;
+            }
+
+            document.getElementById('viewAgentTitle').textContent = `AGENT: ${agent.codename}`;
+            document.getElementById('viewAgentBody').innerHTML = `
+                <div style="margin-bottom: 20px;">
+                    <div class="stats-grid">
+                        <div class="stat-box">
+                            <div class="stat-value">${agent.experience}</div>
+                            <div class="stat-label">ANNÉES</div>
+                        </div>
+                        <div class="stat-box">
+                            <div class="stat-value">${agent.missions || 0}</div>
+                            <div class="stat-label">MISSIONS</div>
+                        </div>
+                        <div class="stat-box">
+                            <div class="stat-value">${agent.successRate || 0}%</div>
+                            <div class="stat-label">SUCCÈS</div>
+                        </div>
+                        <div class="stat-box">
+                            <div class="stat-value">${agent.trust}%</div>
+                            <div class="stat-label">FIABILITÉ</div>
+                        </div>
+                    </div>
+                </div>
+                <div style="margin-bottom: 15px;">
+                    <div style="font-weight: bold; color: var(--neon-purple); margin-bottom: 5px;">STATUT</div>
+                    <div class="card-status status-${agent.status}">${getStatusLabel(agent.status)}</div>
+                </div>
+                <div style="margin-bottom: 15px;">
+                    <div style="font-weight: bold; color: var(--neon-purple); margin-bottom: 5px;">SPÉCIALITÉ</div>
+                    <div>${getSpecialtyLabel(agent.specialty)}</div>
+                </div>
+                <div style="margin-bottom: 15px;">
+                    <div style="font-weight: bold; color: var(--neon-purple); margin-bottom: 5px;">DOSSIER</div>
+                    <div style="background: rgba(42, 63, 95, 0.3); padding: 10px; font-size: 12px;">
+                        ${agent.notes || 'Aucune note disponible.'}
+                    </div>
+                </div>
+                <div style="display: flex; gap: 10px; margin-top: 20px; flex-wrap: wrap;">
+                    <button class="btn" onclick="deleteAgent(${agent.id})">SUPPRIMER</button>
+                    <button class="btn" onclick="closeModal('modalViewAgent')">FERMER</button>
+                </div>
+            `;
+            openModal('modalViewAgent');
+        };
+
+        window.deleteAgent = function(agentId) {
+            if (confirm('Confirmer la suppression de cet agent ?')) {
+                AppData.agents = AppData.agents.filter(a => a.id !== agentId);
+                AppData.save();
+                closeModal('modalViewAgent');
+                renderAgentsList();
+                updateStats();
+                showNotification('Agent supprimé');
+            }
+        };
+
+        // EVENT LISTENERS
+        document.getElementById('btnDashboard').onclick = () => {
+            document.querySelectorAll('.view-content').forEach(v => v.style.display = 'none');
+            document.getElementById('viewDashboard').style.display = 'block';
+            document.querySelectorAll('.btn').forEach(b => b.classList.remove('active'));
+            document.getElementById('btnDashboard').classList.add('active');
+        };
+
+        document.getElementById('btnAgents').onclick = () => {
+            document.querySelectorAll('.view-content').forEach(v => v.style.display = 'none');
+            document.getElementById('viewAgents').style.display = 'block';
+            document.querySelectorAll('.btn').forEach(b => b.classList.remove('active'));
+            document.getElementById('btnAgents').classList.add('active');
+        };
+
+        document.getElementById('btnMissions').onclick = () => {
+            document.querySelectorAll('.view-content').forEach(v => v.style.display = 'none');
+            document.getElementById('viewMissions').style.display = 'block';
+            document.querySelectorAll('.btn').forEach(b => b.classList.remove('active'));
+            document.getElementById('btnMissions').classList.add('active');
+        };
+
+        document.getElementById('btnIntel').onclick = () => {
+            document.querySelectorAll('.view-content').forEach(v => v.style.display = 'none');
+            document.getElementById('viewIntel').style.display = 'block';
+            document.querySelectorAll('.btn').forEach(b => b.classList.remove('active'));
+            document.getElementById('btnIntel').classList.add('active');
+        };
+
+        document.getElementById('btnComms').onclick = () => {
+            document.querySelectorAll('.view-content').forEach(v => v.style.display = 'none');
+            document.getElementById('viewComms').style.display = 'block';
+            document.querySelectorAll('.btn').forEach(b => b.classList.remove('active'));
+            document.getElementById('btnComms').classList.add('active');
+        };
+
+        document.getElementById('btnAddAgent').onclick = () => openModal('modalAddAgent');
+        document.getElementById('btnAddMission').onclick = () => openModal('modalAddMission');
+        document.getElementById('btnAddTarget').onclick = () => openModal('modalAddTarget');
+        document.getElementById('btnNewMessage').onclick = () => openModal('modalNewMessage');
+
+        document.getElementById('themeToggle').onclick = function() {
+            document.body.classList.toggle('light-mode');
+            this.textContent = document.body.classList.contains('light-mode') ? 'MODE SOMBRE' : 'MODE CLAIR';
+        };
+
+        setInterval(() => {
+            document.getElementById('currentTime').textContent = new Date().toLocaleTimeString('fr-FR');
+        }, 1000);
+
+        init();
+    </script>
+</body>
+</html>
