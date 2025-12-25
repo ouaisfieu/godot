@@ -1,0 +1,1393 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>bIenKoR TERMINAL v2.4.7</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --bg-dark: #0a0e1a;
+            --bg-light: #f0f4f8;
+            --primary-dark: #7bed9f;
+            --primary-light: #2ecc71;
+            --secondary-dark: #c77dff;
+            --secondary-light: #9d4edd;
+            --text-dark: #e0e0e0;
+            --text-light: #1a1a1a;
+            --neon-green: #7bed9f;
+            --neon-purple: #c77dff;
+            --panel-dark: #151b2e;
+            --panel-light: #ffffff;
+            --border-dark: #2a3f5f;
+            --border-light: #cbd5e0;
+        }
+
+        body {
+            font-family: 'Courier New', monospace;
+            background: var(--bg-dark);
+            color: var(--text-dark);
+            overflow-x: hidden;
+            transition: background 0.3s, color 0.3s;
+        }
+
+        body.light-mode {
+            background: var(--bg-light);
+            color: var(--text-light);
+        }
+
+        body.light-mode .boot-screen,
+        body.light-mode .main-interface {
+            background: var(--bg-light);
+        }
+
+        body.light-mode .terminal-line,
+        body.light-mode .system-info,
+        body.light-mode h1, body.light-mode h2, body.light-mode h3 {
+            color: var(--text-light);
+        }
+
+        body.light-mode .neon-text {
+            color: var(--primary-light);
+            text-shadow: 0 0 10px var(--primary-light);
+        }
+
+        body.light-mode .panel {
+            background: var(--panel-light);
+            border-color: var(--border-light);
+        }
+
+        body.light-mode .btn {
+            background: var(--panel-light);
+            border-color: var(--border-light);
+            color: var(--text-light);
+        }
+
+        body.light-mode .btn:hover {
+            background: var(--primary-light);
+            color: white;
+        }
+
+        body.light-mode .chat-message.user {
+            background: var(--panel-light);
+            border-color: var(--border-light);
+        }
+
+        body.light-mode .chat-message.system {
+            background: #e8f5e9;
+            border-color: var(--primary-light);
+        }
+
+        body.light-mode .rule-item {
+            background: var(--panel-light);
+            border-color: var(--border-light);
+        }
+
+        .boot-screen {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100vh;
+            background: var(--bg-dark);
+            z-index: 9999;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            padding: 20px;
+            overflow-y: auto;
+        }
+
+        .boot-screen.hidden {
+            animation: fadeOut 0.5s forwards;
+        }
+
+        @keyframes fadeOut {
+            to {
+                opacity: 0;
+                visibility: hidden;
+            }
+        }
+
+        .terminal-line {
+            font-size: 14px;
+            margin: 4px 0;
+            color: var(--neon-green);
+            opacity: 0;
+            animation: typeIn 0.3s forwards;
+        }
+
+        @keyframes typeIn {
+            to { opacity: 1; }
+        }
+
+        .cursor {
+            display: inline-block;
+            width: 10px;
+            height: 16px;
+            background: var(--neon-green);
+            animation: blink 1s infinite;
+            margin-left: 5px;
+        }
+
+        @keyframes blink {
+            0%, 50% { opacity: 1; }
+            51%, 100% { opacity: 0; }
+        }
+
+        .main-interface {
+            display: none;
+            min-height: 100vh;
+            padding: 20px;
+            padding-bottom: 80px;
+            position: relative;
+        }
+
+        .main-interface.active {
+            display: block;
+        }
+
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 30px;
+            flex-wrap: wrap;
+            gap: 15px;
+        }
+
+        .logo {
+            font-size: 24px;
+            font-weight: bold;
+            color: var(--neon-green);
+            text-shadow: 0 0 20px var(--neon-green);
+        }
+
+        .controls {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+
+        .btn {
+            background: var(--panel-dark);
+            border: 2px solid var(--border-dark);
+            color: var(--text-dark);
+            padding: 8px 16px;
+            cursor: pointer;
+            font-family: 'Courier New', monospace;
+            font-size: 12px;
+            transition: all 0.3s;
+            text-transform: uppercase;
+        }
+
+        .btn:hover {
+            background: var(--neon-green);
+            color: var(--bg-dark);
+            box-shadow: 0 0 15px var(--neon-green);
+        }
+
+        .btn.active {
+            background: var(--neon-purple);
+            border-color: var(--neon-purple);
+            box-shadow: 0 0 15px var(--neon-purple);
+        }
+
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        .panel {
+            background: var(--panel-dark);
+            border: 2px solid var(--border-dark);
+            padding: 20px;
+            position: relative;
+            transition: all 0.3s;
+            display: none;
+        }
+
+        .panel.active {
+            display: block;
+        }
+
+        .panel:hover {
+            border-color: var(--neon-green);
+            box-shadow: 0 0 20px rgba(123, 237, 159, 0.3);
+        }
+
+        .panel h2 {
+            color: var(--neon-purple);
+            margin-bottom: 15px;
+            font-size: 18px;
+            text-shadow: 0 0 10px var(--neon-purple);
+        }
+
+        .clearance-badge {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            background: var(--neon-purple);
+            color: var(--bg-dark);
+            padding: 4px 8px;
+            font-size: 10px;
+            font-weight: bold;
+        }
+
+        .system-info {
+            font-size: 12px;
+            line-height: 1.6;
+            color: var(--text-dark);
+        }
+
+        .classified {
+            background: repeating-linear-gradient(
+                45deg,
+                transparent,
+                transparent 10px,
+                rgba(199, 125, 255, 0.1) 10px,
+                rgba(199, 125, 255, 0.1) 20px
+            );
+            padding: 10px;
+            margin: 10px 0;
+            border-left: 3px solid var(--neon-purple);
+        }
+
+        .glitch {
+            position: relative;
+            animation: glitch 3s infinite;
+        }
+
+        @keyframes glitch {
+            0%, 90%, 100% {
+                transform: translate(0);
+            }
+            92% {
+                transform: translate(-2px, 2px);
+            }
+            94% {
+                transform: translate(2px, -2px);
+            }
+            96% {
+                transform: translate(-2px, -2px);
+            }
+        }
+
+        .neon-text {
+            color: var(--neon-green);
+            text-shadow: 0 0 10px var(--neon-green);
+        }
+
+        .status-bar {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: var(--panel-dark);
+            border-top: 2px solid var(--border-dark);
+            padding: 10px 20px;
+            display: flex;
+            justify-content: space-between;
+            font-size: 11px;
+            z-index: 100;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+
+        body.light-mode .status-bar {
+            background: var(--panel-light);
+            border-color: var(--border-light);
+        }
+
+        .hidden-console {
+            display: none;
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 90%;
+            max-width: 600px;
+            max-height: 80vh;
+            background: rgba(10, 14, 26, 0.98);
+            border: 3px solid var(--neon-purple);
+            padding: 20px;
+            z-index: 10000;
+            overflow-y: auto;
+            box-shadow: 0 0 50px var(--neon-purple);
+        }
+
+        .hidden-console.active {
+            display: block;
+            animation: glitchIn 0.5s;
+        }
+
+        @keyframes glitchIn {
+            0%, 20%, 40%, 60%, 80%, 100% {
+                opacity: 1;
+                transform: translate(-50%, -50%) scale(1);
+            }
+            10%, 30%, 50%, 70%, 90% {
+                opacity: 0.8;
+                transform: translate(-50%, -50%) scale(1.02);
+            }
+        }
+
+        .console-header {
+            color: var(--neon-purple);
+            margin-bottom: 20px;
+            font-size: 16px;
+            text-shadow: 0 0 15px var(--neon-purple);
+        }
+
+        .console-content {
+            font-size: 13px;
+            line-height: 1.8;
+        }
+
+        .redacted {
+            background: var(--text-dark);
+            color: var(--text-dark);
+            cursor: not-allowed;
+            user-select: none;
+        }
+
+        .warning {
+            color: #ff6b6b;
+            text-shadow: 0 0 10px #ff6b6b;
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.6; }
+        }
+
+        .close-console {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            background: none;
+            border: none;
+            color: var(--neon-purple);
+            font-size: 20px;
+            cursor: pointer;
+            font-weight: bold;
+        }
+
+        .chat-container {
+            background: var(--panel-dark);
+            border: 2px solid var(--border-dark);
+            height: 400px;
+            overflow-y: auto;
+            padding: 15px;
+            margin-bottom: 15px;
+            scroll-behavior: smooth;
+        }
+
+        .chat-message {
+            margin-bottom: 15px;
+            padding: 10px;
+            border-radius: 4px;
+        }
+
+        .chat-message.user {
+            background: rgba(42, 63, 95, 0.5);
+            border-left: 3px solid var(--neon-green);
+        }
+
+        .chat-message.system {
+            background: rgba(21, 27, 46, 0.5);
+            border-left: 3px solid var(--neon-purple);
+        }
+
+        .chat-message.reasoning {
+            background: rgba(199, 125, 255, 0.1);
+            border-left: 3px solid var(--neon-purple);
+            font-size: 11px;
+            opacity: 0.8;
+        }
+
+        .chat-input-container {
+            display: flex;
+            gap: 10px;
+        }
+
+        .chat-input {
+            flex: 1;
+            background: var(--panel-dark);
+            border: 2px solid var(--border-dark);
+            color: var(--text-dark);
+            padding: 10px;
+            font-family: 'Courier New', monospace;
+            font-size: 13px;
+        }
+
+        body.light-mode .chat-input {
+            background: var(--panel-light);
+            border-color: var(--border-light);
+            color: var(--text-light);
+        }
+
+        .chat-input:focus {
+            outline: none;
+            border-color: var(--neon-green);
+            box-shadow: 0 0 10px rgba(123, 237, 159, 0.3);
+        }
+
+        .rule-item {
+            background: var(--panel-dark);
+            border: 1px solid var(--border-dark);
+            padding: 10px;
+            margin-bottom: 10px;
+            font-size: 11px;
+            transition: all 0.3s;
+        }
+
+        .rule-item:hover {
+            border-color: var(--neon-green);
+        }
+
+        .rule-condition {
+            color: var(--neon-green);
+            margin-bottom: 5px;
+        }
+
+        .rule-action {
+            color: var(--neon-purple);
+        }
+
+        .inference-graph {
+            background: var(--panel-dark);
+            border: 2px solid var(--border-dark);
+            padding: 15px;
+            height: 300px;
+            overflow-y: auto;
+            font-size: 11px;
+        }
+
+        .graph-node {
+            padding: 5px 10px;
+            margin: 5px 0;
+            border-left: 2px solid var(--neon-green);
+            transition: all 0.3s;
+        }
+
+        .graph-node:hover {
+            background: rgba(123, 237, 159, 0.1);
+        }
+
+        .graph-node.fired {
+            border-left-color: var(--neon-purple);
+            background: rgba(199, 125, 255, 0.1);
+        }
+
+        .knowledge-editor {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .knowledge-editor input,
+        .knowledge-editor textarea {
+            background: var(--panel-dark);
+            border: 2px solid var(--border-dark);
+            color: var(--text-dark);
+            padding: 8px;
+            font-family: 'Courier New', monospace;
+            font-size: 12px;
+        }
+
+        body.light-mode .knowledge-editor input,
+        body.light-mode .knowledge-editor textarea {
+            background: var(--panel-light);
+            border-color: var(--border-light);
+            color: var(--text-light);
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+            gap: 10px;
+        }
+
+        .stat-box {
+            background: rgba(123, 237, 159, 0.1);
+            border: 1px solid var(--neon-green);
+            padding: 10px;
+            text-align: center;
+        }
+
+        .stat-value {
+            font-size: 24px;
+            color: var(--neon-green);
+            font-weight: bold;
+        }
+
+        .stat-label {
+            font-size: 10px;
+            opacity: 0.7;
+            margin-top: 5px;
+        }
+
+        @media (max-width: 768px) {
+            .terminal-line {
+                font-size: 12px;
+            }
+            
+            .logo {
+                font-size: 20px;
+            }
+            
+            .grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .status-bar {
+                font-size: 10px;
+            }
+
+            .chat-container {
+                height: 300px;
+            }
+        }
+
+        .scan-line {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 2px;
+            background: linear-gradient(to right, transparent, var(--neon-green), transparent);
+            animation: scan 4s linear infinite;
+            pointer-events: none;
+            z-index: 9998;
+            opacity: 0.3;
+        }
+
+        @keyframes scan {
+            0% { top: 0; }
+            100% { top: 100%; }
+        }
+
+        .mission-tag {
+            display: inline-block;
+            background: linear-gradient(135deg, var(--neon-green), var(--neon-purple));
+            padding: 2px 8px;
+            font-size: 10px;
+            margin: 5px 5px 5px 0;
+            animation: shimmer 3s infinite;
+        }
+
+        @keyframes shimmer {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.7; }
+        }
+
+        .suggestion-box {
+            background: rgba(199, 125, 255, 0.1);
+            border: 1px solid var(--neon-purple);
+            padding: 10px;
+            margin-top: 10px;
+            font-size: 11px;
+        }
+
+        .suggestion-item {
+            cursor: pointer;
+            padding: 5px;
+            transition: all 0.3s;
+        }
+
+        .suggestion-item:hover {
+            background: rgba(199, 125, 255, 0.2);
+            padding-left: 10px;
+        }
+    </style>
+</head>
+<body>
+    <div class="scan-line"></div>
+    
+    <div class="boot-screen" id="bootScreen">
+        <div id="bootContent"></div>
+    </div>
+
+    <div class="main-interface" id="mainInterface">
+        <div class="header">
+            <div class="logo glitch">bIenKoR EXPERT SYSTEM</div>
+            <div class="controls">
+                <button class="btn active" id="viewDashboard">TABLEAU DE BORD</button>
+                <button class="btn" id="viewExpert">SYSTÈME EXPERT</button>
+                <button class="btn" id="viewKnowledge">BASE CONNAISSANCES</button>
+                <button class="btn" id="themeToggle">MODE CLAIR</button>
+                <button class="btn" id="clearanceBtn">CLEARANCE: GUEST</button>
+            </div>
+        </div>
+
+        <!-- DASHBOARD VIEW -->
+        <div id="dashboardView" class="view-container active">
+            <div class="grid">
+                <div class="panel active">
+                    <div class="clearance-badge">PUBLIC</div>
+                    <h2>STATISTIQUES SYSTÈME</h2>
+                    <div class="stats-grid">
+                        <div class="stat-box">
+                            <div class="stat-value" id="statRules">0</div>
+                            <div class="stat-label">RÈGLES</div>
+                        </div>
+                        <div class="stat-box">
+                            <div class="stat-value" id="statFacts">0</div>
+                            <div class="stat-label">FAITS</div>
+                        </div>
+                        <div class="stat-box">
+                            <div class="stat-value" id="statInferences">0</div>
+                            <div class="stat-label">INFÉRENCES</div>
+                        </div>
+                        <div class="stat-box">
+                            <div class="stat-value" id="statQueries">0</div>
+                            <div class="stat-label">REQUÊTES</div>
+                        </div>
+                    </div>
+                    <div style="margin-top: 15px;">
+                        <div class="mission-tag">MISSION: KORBEN</div>
+                        <div class="mission-tag">IA: ACTIVE</div>
+                    </div>
+                </div>
+
+                <div class="panel active">
+                    <div class="clearance-badge">PUBLIC</div>
+                    <h2>HIÉRARCHIE</h2>
+                    <div class="system-info">
+                        <p><span class="neon-text">NIVEAU 4:</span> <span class="redacted">CRÉATEUR</span></p>
+                        <p style="font-size: 10px; margin-left: 20px; opacity: 0.7;">└─ Protégé par Agent Gardien</p>
+                        <p><span class="neon-text">NIVEAU 3:</span> Le Collectif</p>
+                        <p><span class="neon-text">NIVEAU 2:</span> L'Organisation</p>
+                        <p><span class="neon-text">NIVEAU 1:</span> Agents</p>
+                    </div>
+                </div>
+
+                <div class="panel active">
+                    <div class="clearance-badge">RESTREINT</div>
+                    <h2>AGENT GARDIEN</h2>
+                    <div class="system-info classified">
+                        <p><span class="neon-text">STATUT:</span> <span id="guardianStatus">ACTIF</span></p>
+                        <p><span class="neon-text">INTERVENTIONS:</span> <span id="guardianInterventions">3247</span></p>
+                        <p><span class="neon-text">DERNIÈRE ACTION:</span> <span id="guardianLastAction">Surveillance</span></p>
+                    </div>
+                </div>
+
+                <div class="panel active">
+                    <div class="clearance-badge">PUBLIC</div>
+                    <h2>INFÉRENCES RÉCENTES</h2>
+                    <div class="inference-graph" id="recentInferences">
+                        <p style="opacity: 0.5;">Aucune inférence récente...</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- EXPERT SYSTEM VIEW -->
+        <div id="expertView" class="view-container">
+            <div class="grid">
+                <div class="panel" style="display: block; grid-column: 1 / -1;">
+                    <h2>CONSOLE D'INTERROGATION</h2>
+                    <div class="chat-container" id="chatContainer"></div>
+                    <div class="chat-input-container">
+                        <input type="text" class="chat-input" id="queryInput" placeholder="Posez votre question au système expert...">
+                        <button class="btn" id="querySubmit">ENVOYER</button>
+                    </div>
+                    <div class="suggestion-box">
+                        <strong style="color: var(--neon-purple);">Suggestions:</strong>
+                        <div class="suggestion-item" data-query="Quel agent pour mission infiltration ?">→ Quel agent pour mission infiltration ?</div>
+                        <div class="suggestion-item" data-query="Évaluer menace niveau 3">→ Évaluer menace niveau 3</div>
+                        <div class="suggestion-item" data-query="Agent X fiable pour mission Y ?">→ Agent X fiable pour mission Y ?</div>
+                        <div class="suggestion-item" data-query="Analyser activité suspecte">→ Analyser activité suspecte</div>
+                    </div>
+                </div>
+
+                <div class="panel" style="display: block;">
+                    <h2>TRACE DE RAISONNEMENT</h2>
+                    <div class="inference-graph" id="reasoningTrace">
+                        <p style="opacity: 0.5;">Le raisonnement apparaîtra ici...</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- KNOWLEDGE BASE VIEW -->
+        <div id="knowledgeView" class="view-container">
+            <div class="grid">
+                <div class="panel" style="display: block; grid-column: 1 / -1;">
+                    <h2>RÈGLES ACTIVES</h2>
+                    <div style="max-height: 400px; overflow-y: auto;" id="rulesContainer"></div>
+                </div>
+
+                <div class="panel" style="display: block;">
+                    <div class="clearance-badge">SUPERVISEUR</div>
+                    <h2>AJOUTER RÈGLE</h2>
+                    <div class="knowledge-editor">
+                        <input type="text" id="ruleCondition" placeholder="Condition (ex: agent.experience > 5)">
+                        <input type="text" id="ruleAction" placeholder="Action (ex: agent.rank = senior)">
+                        <button class="btn" id="addRuleBtn">AJOUTER RÈGLE</button>
+                    </div>
+                </div>
+
+                <div class="panel" style="display: block;">
+                    <h2>FAITS CONNUS</h2>
+                    <div style="max-height: 300px; overflow-y: auto; font-size: 11px;" id="factsContainer"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="status-bar">
+        <span>bIenKoR v2.4.7</span>
+        <span id="currentTime"></span>
+        <span>CLEARANCE: <span id="statusClearance">GUEST</span></span>
+        <span id="engineStatus">MOTEUR: <span class="neon-text">ACTIF</span></span>
+        <span id="easterEggCounter" style="opacity: 0;">🥚 0</span>
+    </div>
+
+    <div class="hidden-console" id="hiddenConsole">
+        <button class="close-console" id="closeConsole">×</button>
+        <div class="console-header">
+            ═══════════════════════════════════════<br>
+            CONSOLE DE NIVEAU SUPÉRIEUR<br>
+            ═══════════════════════════════════════
+        </div>
+        <div class="console-content" id="consoleContent"></div>
+    </div>
+
+    <script>
+        // ========== EXPERT SYSTEM ENGINE ==========
+        class ExpertSystem {
+            constructor() {
+                this.rules = [];
+                this.facts = {};
+                this.inferenceHistory = [];
+                this.queryCount = 0;
+            }
+
+            addRule(condition, action, description = '', clearance = 0) {
+                this.rules.push({
+                    id: this.rules.length,
+                    condition,
+                    action,
+                    description,
+                    clearance,
+                    fired: false
+                });
+            }
+
+            addFact(key, value) {
+                this.facts[key] = value;
+            }
+
+            evaluateCondition(condition) {
+                try {
+                    const func = new Function('facts', `with(facts) { return ${condition}; }`);
+                    return func(this.facts);
+                } catch (e) {
+                    return false;
+                }
+            }
+
+            executeAction(action) {
+                try {
+                    const func = new Function('facts', `with(facts) { ${action}; return facts; }`);
+                    this.facts = func(this.facts);
+                } catch (e) {
+                    console.error('Action execution error:', e);
+                }
+            }
+
+            forwardChaining(maxIterations = 100) {
+                let iteration = 0;
+                let changed = true;
+                const trace = [];
+
+                while (changed && iteration < maxIterations) {
+                    changed = false;
+                    iteration++;
+
+                    for (let rule of this.rules) {
+                        if (!rule.fired && this.evaluateCondition(rule.condition)) {
+                            this.executeAction(rule.action);
+                            rule.fired = true;
+                            changed = true;
+
+                            const inference = {
+                                iteration,
+                                rule: rule.id,
+                                description: rule.description,
+                                condition: rule.condition,
+                                action: rule.action,
+                                timestamp: new Date()
+                            };
+                            trace.push(inference);
+                            this.inferenceHistory.push(inference);
+                        }
+                    }
+                }
+
+                return trace;
+            }
+
+            backwardChaining(goal) {
+                // Simplified backward chaining
+                const trace = [`Recherche de: ${goal}`];
+                
+                for (let rule of this.rules) {
+                    if (rule.action.includes(goal)) {
+                        trace.push(`Règle trouvée: ${rule.description}`);
+                        trace.push(`Condition: ${rule.condition}`);
+                        
+                        if (this.evaluateCondition(rule.condition)) {
+                            trace.push(`✓ Condition satisfaite`);
+                            this.executeAction(rule.action);
+                            return { success: true, trace };
+                        } else {
+                            trace.push(`✗ Condition non satisfaite`);
+                        }
+                    }
+                }
+                
+                return { success: false, trace };
+            }
+
+            query(question) {
+                this.queryCount++;
+                const lowerQ = question.toLowerCase();
+                const response = {
+                    answer: '',
+                    reasoning: [],
+                    success: false
+                };
+
+                // Pattern matching pour questions
+                if (lowerQ.includes('agent') && lowerQ.includes('infiltration')) {
+                    this.addFact('mission.type', 'infiltration');
+                    const trace = this.forwardChaining();
+                    response.reasoning = trace;
+                    
+                    if (this.facts['recommended.agent']) {
+                        response.answer = `Agent recommandé: ${this.facts['recommended.agent']}. ${this.facts['recommendation.reason'] || ''}`;
+                        response.success = true;
+                    } else {
+                        response.answer = "Aucun agent qualifié trouvé pour cette mission.";
+                    }
+                }
+                else if (lowerQ.includes('menace') || lowerQ.includes('risque')) {
+                    this.addFact('analysis.type', 'threat');
+                    const trace = this.forwardChaining();
+                    response.reasoning = trace;
+                    
+                    response.answer = `Niveau de menace évalué: ${this.facts['threat.level'] || 'Indéterminé'}. ${this.facts['threat.details'] || ''}`;
+                    response.success = true;
+                }
+                else if (lowerQ.includes('fiable') || lowerQ.includes('confiance')) {
+                    this.addFact('query.type', 'trust');
+                    const trace = this.forwardChaining();
+                    response.reasoning = trace;
+                    
+                    response.answer = `Évaluation de confiance: ${this.facts['trust.level'] || 'En cours...'}`;
+                    response.success = true;
+                }
+                else if (lowerQ.includes('créateur') || lowerQ.includes('niveau 4')) {
+                    incrementGuardianInterventions();
+                    response.answer = "⚠ ACCÈS REFUSÉ - Agent Gardien: Cette information est classifiée au plus haut niveau.";
+                    response.reasoning = [{description: 'Intervention Agent Gardien - Blocage accès Niveau 4'}];
+                    response.success = false;
+                }
+                else {
+                    const trace = this.forwardChaining();
+                    response.reasoning = trace;
+                    response.answer = `Analyse effectuée. ${trace.length} règles activées. Consultez la trace de raisonnement pour plus de détails.`;
+                    response.success = true;
+                }
+
+                return response;
+            }
+
+            reset() {
+                this.rules.forEach(r => r.fired = false);
+            }
+
+            exportKnowledge() {
+                return JSON.stringify({
+                    rules: this.rules,
+                    facts: this.facts
+                }, null, 2);
+            }
+
+            importKnowledge(json) {
+                try {
+                    const data = JSON.parse(json);
+                    this.rules = data.rules || [];
+                    this.facts = data.facts || {};
+                    return true;
+                } catch (e) {
+                    return false;
+                }
+            }
+        }
+
+        // ========== INITIALIZATION ==========
+        const expertSystem = new ExpertSystem();
+        let clearanceLevel = 0;
+        let easterEggs = 0;
+        let konamiCode = [];
+        const konamiSequence = ['ArrowUp', 'ArrowUp', 'ArrowDown', 'ArrowDown', 'ArrowLeft', 'ArrowRight', 'ArrowLeft', 'ArrowRight', 'b', 'a'];
+
+        // Initialize knowledge base
+        function initializeKnowledgeBase() {
+            // Règles d'évaluation des agents
+            expertSystem.addRule(
+                "mission.type === 'infiltration'",
+                "recommended.agent = 'Agent Shadow'; recommendation.reason = 'Expertise en opérations clandestines (15 ans)'",
+                "Recommandation agent infiltration",
+                0
+            );
+
+            expertSystem.addRule(
+                "mission.type === 'cyber'",
+                "recommended.agent = 'Agent Cipher'; recommendation.reason = 'Spécialiste cybersécurité niveau expert'",
+                "Recommandation agent cyber",
+                0
+            );
+
+            expertSystem.addRule(
+                "analysis.type === 'threat' && threat.indicators > 3",
+                "threat.level = 'CRITIQUE'; threat.details = 'Multiples indicateurs de compromission détectés'",
+                "Évaluation menace critique",
+                1
+            );
+
+            expertSystem.addRule(
+                "analysis.type === 'threat' && threat.indicators <= 3",
+                "threat.level = 'MODÉRÉ'; threat.details = 'Surveillance recommandée'",
+                "Évaluation menace modérée",
+                0
+            );
+
+            expertSystem.addRule(
+                "query.type === 'trust' && agent.missions >= 10 && agent.success_rate > 0.9",
+                "trust.level = 'ÉLEVÉ'; trust.reason = 'Historique excellent'",
+                "Évaluation confiance élevée",
+                1
+            );
+
+            expertSystem.addRule(
+                "query.type === 'trust' && agent.missions < 10",
+                "trust.level = 'À CONFIRMER'; trust.reason = 'Expérience limitée'",
+                "Évaluation confiance limitée",
+                0
+            );
+
+            // Règles de sécurité
+            expertSystem.addRule(
+                "security.clearance < 2",
+                "access.restricted = true; access.message = 'Clearance insuffisante'",
+                "Restriction accès faible clearance",
+                0
+            );
+
+            // Règles mission Korben
+            expertSystem.addRule(
+                "mission.target === 'korben'",
+                "mission.priority = 'MAXIMALE'; mission.approach = 'démonstration capacités'",
+                "Priorisation mission Korben",
+                0
+            );
+
+            // Règles Agent Gardien
+            expertSystem.addRule(
+                "query.subject === 'creator' || query.subject === 'niveau4'",
+                "guardian.intervene = true; guardian.block = true; guardian.log = 'Tentative accès Niveau 4 bloquée'",
+                "Protection identité Créateur",
+                3
+            );
+
+            // Faits initiaux
+            expertSystem.addFact('system.status', 'operational');
+            expertSystem.addFact('threat.indicators', 2);
+            expertSystem.addFact('agent.missions', 12);
+            expertSystem.addFact('agent.success_rate', 0.95);
+            expertSystem.addFact('security.clearance', 0);
+            expertSystem.addFact('mission.target', 'korben');
+
+            updateStats();
+        }
+
+        // ========== UI FUNCTIONS ==========
+        function updateStats() {
+            document.getElementById('statRules').textContent = expertSystem.rules.length;
+            document.getElementById('statFacts').textContent = Object.keys(expertSystem.facts).length;
+            document.getElementById('statInferences').textContent = expertSystem.inferenceHistory.length;
+            document.getElementById('statQueries').textContent = expertSystem.queryCount;
+        }
+
+        function displayRules() {
+            const container = document.getElementById('rulesContainer');
+            container.innerHTML = '';
+
+            expertSystem.rules.forEach(rule => {
+                if (rule.clearance <= clearanceLevel) {
+                    const div = document.createElement('div');
+                    div.className = 'rule-item';
+                    div.innerHTML = `
+                        <div class="rule-condition">SI: ${rule.condition}</div>
+                        <div class="rule-action">ALORS: ${rule.action}</div>
+                        ${rule.description ? `<div style="opacity: 0.7; margin-top: 5px;">${rule.description}</div>` : ''}
+                    `;
+                    container.appendChild(div);
+                }
+            });
+        }
+
+        function displayFacts() {
+            const container = document.getElementById('factsContainer');
+            container.innerHTML = '';
+
+            for (let [key, value] of Object.entries(expertSystem.facts)) {
+                const div = document.createElement('div');
+                div.style.padding = '5px';
+                div.style.borderBottom = '1px solid var(--border-dark)';
+                div.innerHTML = `<span class="neon-text">${key}:</span> ${value}`;
+                container.appendChild(div);
+            }
+        }
+
+        function addChatMessage(text, type = 'system', showReasoning = null) {
+            const container = document.getElementById('chatContainer');
+            
+            if (showReasoning && showReasoning.length > 0) {
+                const reasoningDiv = document.createElement('div');
+                reasoningDiv.className = 'chat-message reasoning';
+                reasoningDiv.innerHTML = '<strong>└─ Trace de raisonnement:</strong><br>';
+                showReasoning.forEach(r => {
+                    reasoningDiv.innerHTML += `→ ${r.description || r}<br>`;
+                });
+                container.appendChild(reasoningDiv);
+            }
+
+            const div = document.createElement('div');
+            div.className = `chat-message ${type}`;
+            div.textContent = text;
+            container.appendChild(div);
+            container.scrollTop = container.scrollHeight;
+
+            updateRecentInferences();
+        }
+
+        function updateRecentInferences() {
+            const container = document.getElementById('recentInferences');
+            const recent = expertSystem.inferenceHistory.slice(-5).reverse();
+            
+            if (recent.length === 0) {
+                container.innerHTML = '<p style="opacity: 0.5;">Aucune inférence récente...</p>';
+                return;
+            }
+
+            container.innerHTML = '';
+            recent.forEach(inf => {
+                const div = document.createElement('div');
+                div.className = 'graph-node fired';
+                div.innerHTML = `
+                    <strong>${inf.description}</strong><br>
+                    <span style="opacity: 0.7; font-size: 10px;">${inf.timestamp.toLocaleTimeString()}</span>
+                `;
+                container.appendChild(div);
+            });
+        }
+
+        function updateReasoningTrace(trace) {
+            const container = document.getElementById('reasoningTrace');
+            
+            if (!trace || trace.length === 0) {
+                container.innerHTML = '<p style="opacity: 0.5;">Le raisonnement apparaîtra ici...</p>';
+                return;
+            }
+
+            container.innerHTML = '';
+            trace.forEach((item, index) => {
+                const div = document.createElement('div');
+                div.className = 'graph-node fired';
+                div.innerHTML = `
+                    <strong>Étape ${index + 1}:</strong> ${item.description || item}<br>
+                    ${item.condition ? `<span style="opacity: 0.7;">Condition: ${item.condition}</span>` : ''}
+                `;
+                container.appendChild(div);
+            });
+        }
+
+        function incrementGuardianInterventions() {
+            const current = parseInt(document.getElementById('guardianInterventions').textContent);
+            document.getElementById('guardianInterventions').textContent = current + 1;
+            document.getElementById('guardianLastAction').textContent = 'Blocage accès Niveau 4';
+            document.getElementById('guardianStatus').textContent = 'ALERTE';
+            document.getElementById('guardianStatus').style.color = '#ff6b6b';
+
+            setTimeout(() => {
+                document.getElementById('guardianStatus').textContent = 'ACTIF';
+                document.getElementById('guardianStatus').style.color = '';
+                document.getElementById('guardianLastAction').textContent = 'Surveillance';
+            }, 3000);
+        }
+
+        // ========== EVENT HANDLERS ==========
+        document.getElementById('querySubmit').addEventListener('click', function() {
+            const input = document.getElementById('queryInput');
+            const query = input.value.trim();
+            
+            if (!query) return;
+
+            addChatMessage(query, 'user');
+            input.value = '';
+
+            expertSystem.reset();
+            const response = expertSystem.query(query);
+
+            addChatMessage(response.answer, 'system', response.reasoning);
+            updateReasoningTrace(response.reasoning);
+            updateStats();
+            displayFacts();
+        });
+
+        document.getElementById('queryInput').addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                document.getElementById('querySubmit').click();
+            }
+        });
+
+        document.querySelectorAll('.suggestion-item').forEach(item => {
+            item.addEventListener('click', function() {
+                const query = this.dataset.query;
+                document.getElementById('queryInput').value = query;
+                document.getElementById('querySubmit').click();
+            });
+        });
+
+        document.getElementById('addRuleBtn').addEventListener('click', function() {
+            const condition = document.getElementById('ruleCondition').value.trim();
+            const action = document.getElementById('ruleAction').value.trim();
+
+            if (!condition || !action) {
+                addChatMessage('Erreur: Condition et action requises', 'system');
+                return;
+            }
+
+            if (clearanceLevel < 2) {
+                addChatMessage('⚠ Clearance SUPERVISEUR requise pour ajouter des règles', 'system');
+                return;
+            }
+
+            expertSystem.addRule(condition, action, 'Règle personnalisée', clearanceLevel);
+            displayRules();
+            updateStats();
+
+            document.getElementById('ruleCondition').value = '';
+            document.getElementById('ruleAction').value = '';
+
+            addChatMessage('Règle ajoutée avec succès', 'system');
+        });
+
+        // View switching
+        document.getElementById('viewDashboard').addEventListener('click', function() {
+            switchView('dashboard');
+        });
+
+        document.getElementById('viewExpert').addEventListener('click', function() {
+            switchView('expert');
+        });
+
+        document.getElementById('viewKnowledge').addEventListener('click', function() {
+            switchView('knowledge');
+            displayRules();
+            displayFacts();
+        });
+
+        function switchView(view) {
+            document.querySelectorAll('.view-container').forEach(v => v.classList.remove('active'));
+            document.querySelectorAll('.controls .btn').forEach(b => b.classList.remove('active'));
+
+            if (view === 'dashboard') {
+                document.getElementById('dashboardView').classList.add('active');
+                document.getElementById('viewDashboard').classList.add('active');
+            } else if (view === 'expert') {
+                document.getElementById('expertView').classList.add('active');
+                document.getElementById('viewExpert').classList.add('active');
+            } else if (view === 'knowledge') {
+                document.getElementById('knowledgeView').classList.add('active');
+                document.getElementById('viewKnowledge').classList.add('active');
+            }
+        }
+
+        document.getElementById('themeToggle').addEventListener('click', function() {
+            document.body.classList.toggle('light-mode');
+            this.textContent = document.body.classList.contains('light-mode') ? 'MODE SOMBRE' : 'MODE CLAIR';
+        });
+
+        document.getElementById('clearanceBtn').addEventListener('click', function() {
+            if (clearanceLevel < 3) {
+                clearanceLevel++;
+                const levels = ['AGENT', 'OPÉRATEUR', 'SUPERVISEUR', 'DIRECTEUR'];
+                this.textContent = 'CLEARANCE: ' + levels[clearanceLevel - 1];
+                document.getElementById('statusClearance').textContent = levels[clearanceLevel - 1];
+                expertSystem.addFact('security.clearance', clearanceLevel);
+                
+                displayRules();
+                
+                if (clearanceLevel === 3) {
+                    showConsole('level3');
+                }
+            }
+        });
+
+        // Konami code
+        document.addEventListener('keydown', function(e) {
+            konamiCode.push(e.key);
+            if (konamiCode.length > 10) konamiCode.shift();
+            
+            if (konamiCode.join(',') === konamiSequence.join(',')) {
+                easterEggs++;
+                document.getElementById('easterEggCounter').style.opacity = '1';
+                document.getElementById('easterEggCounter').textContent = '🥚 ' + easterEggs;
+                showConsole('konami');
+                konamiCode = [];
+            }
+        });
+
+        document.getElementById('closeConsole').addEventListener('click', function() {
+            document.getElementById('hiddenConsole').classList.remove('active');
+        });
+
+        function showConsole(type) {
+            const console = document.getElementById('hiddenConsole');
+            const content = document.getElementById('consoleContent');
+            
+            if (type === 'konami') {
+                content.innerHTML = `
+                    <p class="neon-text">╔═══════════════════════════════════╗</p>
+                    <p class="neon-text">║  CODE KONAMI DÉTECTÉ  ║</p>
+                    <p class="neon-text">╚═══════════════════════════════════╝</p>
+                    <br>
+                    <p class="warning">⚠ ALERTE AGENT GARDIEN ⚠</p>
+                    <br>
+                    <p>Tentative d'accès non conventionnelle détectée.</p>
+                    <p>Analyse en cours...</p>
+                    <br>
+                    <p class="classified">
+                    >> LOG SYSTÈME <<br>
+                    [${new Date().toISOString()}] Séquence Konami initiée<br>
+                    [${new Date().toISOString()}] Agent Gardien: ÉVALUATION<br>
+                    [${new Date().toISOString()}] Niveau menace: FAIBLE<br>
+                    [${new Date().toISOString()}] Curiosité détectée: ÉLEVÉE<br>
+                    </p>
+                    <br>
+                    <p style="color: var(--neon-purple);">RÉVÉLATION SYSTÈME EXPERT:</p>
+                    <p>Le moteur d'inférence utilise un algorithme de chaînage avant avec évaluation dynamique des règles. ${expertSystem.rules.length} règles actives, ${expertSystem.inferenceHistory.length} inférences effectuées.</p>
+                    <br>
+                    <p style="font-size: 11px; opacity: 0.6;">Easter Eggs trouvés: ${easterEggs}/7</p>
+                `;
+            } else if (type === 'level3') {
+                content.innerHTML = `
+                    <p class="neon-text">╔═══════════════════════════════════╗</p>
+                    <p class="neon-text">║  CLEARANCE SUPERVISEUR ACCORDÉE  ║</p>
+                    <p class="neon-text">╚═══════════════════════════════════╝</p>
+                    <br>
+                    <p><span class="neon-text">ACCÈS DÉBLOQUÉ:</span> Modification base de connaissances</p>
+                    <p><span class="neon-text">NOUVELLES CAPACITÉS:</span></p>
+                    <br>
+                    <div class="classified">
+                    <p>✓ Ajout de règles personnalisées</p>
+                    <p>✓ Visualisation règles niveau 2</p>
+                    <p>✓ Export/Import base de connaissances</p>
+                    <p>✗ Accès identité Créateur (NIVEAU 4 requis)</p>
+                    </div>
+                    <br>
+                    <p class="warning">⚠ AVERTISSEMENT ⚠</p>
+                    <p style="font-size: 11px;">L'Agent Gardien surveille toute tentative d'accès au Niveau 4.</p>
+                    <br>
+                    <p style="font-size: 10px; opacity: 0.5;">Note: Mission Korben - Le système expert est maintenant pleinement opérationnel</p>
+                `;
+            }
+            
+            console.classList.add('active');
+        }
+
+        // ========== BOOT SEQUENCE ==========
+        const bootSequence = [
+            'INITIALISATION bIenKoR EXPERT SYSTEM v2.4.7...',
+            'Chargement modules de sécurité...',
+            'Vérification intégrité système... OK',
+            'Chargement moteur d\'inférence...',
+            '> Algorithme de chaînage: ACTIF',
+            '> Pattern matching: ACTIF',
+            '> Évaluation règles: ACTIF',
+            'Chargement base de connaissances...',
+            '> Règles métier: CHARGÉES',
+            '> Faits initiaux: CHARGÉS',
+            '> Ontologie: CHARGÉE',
+            'Vérification Agent Gardien...',
+            '> Agent Gardien: ACTIF',
+            '> Protection niveau 4: ACTIVE',
+            'Initialisation interface utilisateur...',
+            'Vérification clearance utilisateur...',
+            'Clearance détectée: GUEST',
+            '> Module Dashboard: CHARGÉ',
+            '> Module Expert: CHARGÉ',
+            '> Module Connaissances: ACCÈS LIMITÉ',
+            'Activation mission KORBEN...',
+            'Tous les systèmes opérationnels.',
+            'Bienvenue dans bIenKoR EXPERT SYSTEM.',
+            ''
+        ];
+
+        function bootSystem() {
+            const bootContent = document.getElementById('bootContent');
+            let delay = 0;
+
+            bootSequence.forEach((line, index) => {
+                setTimeout(() => {
+                    const lineDiv = document.createElement('div');
+                    lineDiv.className = 'terminal-line';
+                    lineDiv.textContent = line;
+                    bootContent.appendChild(lineDiv);
+                    
+                    if (index === bootSequence.length - 1) {
+                        setTimeout(() => {
+                            const cursor = document.createElement('span');
+                            cursor.className = 'cursor';
+                            bootContent.appendChild(cursor);
+                            
+                            setTimeout(() => {
+                                document.getElementById('bootScreen').classList.add('hidden');
+                                document.getElementById('mainInterface').classList.add('active');
+                                initializeKnowledgeBase();
+                            }, 1000);
+                        }, 500);
+                    }
+                    
+                    bootContent.scrollTop = bootContent.scrollHeight;
+                }, delay);
+                delay += 150;
+            });
+        }
+
+        function updateTime() {
+            const now = new Date();
+            document.getElementById('currentTime').textContent = now.toLocaleTimeString('fr-FR');
+        }
+
+        setInterval(updateTime, 1000);
+        updateTime();
+        bootSystem();
+    </script>
+</body>
+</html>
